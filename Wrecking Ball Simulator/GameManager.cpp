@@ -39,7 +39,7 @@ namespace GameManager {
         player->setRotation(PxQuat(PxIdentity));
         scene->setActor(player);
 
-        camera = new Camera();
+        camera = new Camera(player);
         scene->setCamera(camera);
 
         inputManager = new InputManager();

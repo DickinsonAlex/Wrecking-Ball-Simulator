@@ -12,7 +12,7 @@ using namespace physx;
 class Camera
 {
 public:
-	Camera(); // Constructor
+	Camera(Actor* target); // Constructor
 	~Camera(); // Destructor
 
 	// Target

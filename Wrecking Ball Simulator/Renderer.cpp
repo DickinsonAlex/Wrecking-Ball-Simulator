@@ -5,6 +5,7 @@
 
 #include <vector>Re
 #include <string>
+#include <iostream> // Include iostream for logging
 
 using namespace std;
 using namespace physx;
@@ -221,13 +222,16 @@ namespace Renderer
 	// From PhysX Tutorials
 	static void idleCallback()
 	{
+		std::cout << "Idle callback triggered." << std::endl;
 		glClearColor(backgroundColour.x, backgroundColour.y, backgroundColour.z, 1.0f);
 		glutPostRedisplay();
 	}
 
 	// From PhysX Tutorials
-	void Init()
+	void Init(const std::string& title, int width, int height)
 	{
+		std::cout << "Initializing Renderer with title: " << title << ", width: " << width << ", height: " << height << std::endl;
+
 		// Setup default render states
 		PxReal specular_material[] = { .1f, .1f, .1f, 1.f };
 		glEnable(GL_DEPTH_TEST);
@@ -245,11 +249,24 @@ namespace Renderer
 		glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseColor);
 		glLightfv(GL_LIGHT0, GL_POSITION, position);
 		glEnable(GL_LIGHT0);
+
+		InitWindow(title.c_str(), width, height);
+
+		 // Debug log to confirm glutMainLoop is reached
+		std::cout << "Starting GLUT main loop..." << std::endl;
+
+		// Ensure glutMainLoop is called
+		glutMainLoop();
+
+		// Add a fallback log in case glutMainLoop exits unexpectedly
+		std::cerr << "Error: glutMainLoop exited unexpectedly!" << std::endl;
 	}
 
 	// From PhysX Tutorials
 	void InitWindow(const char* title, int width, int height)
 	{
+		std::cout << "Initializing Window with title: " << title << ", width: " << width << ", height: " << height << std::endl;
+
 		char* titleStr = new char[strlen(title) + 1];
 		strcpy_s(titleStr, strlen(title) + 1, title);
 		int argc = 1;
@@ -260,6 +277,10 @@ namespace Renderer
 		glutInitWindowSize(width, height);
 		glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 		glutSetWindow(glutCreateWindow(title));
+
+		// Debug log to confirm window creation
+		std::cout << "GLUT window created successfully." << std::endl;
+
 		glutIdleFunc(idleCallback);
 
 		delete[] titleStr;
@@ -461,11 +482,11 @@ namespace Renderer
 		}
 	}
 
-	void RenderText(const std::string& text, const physx::PxVec2& location, const PxVec3& color, PxReal size)
+	void RenderText(const std::string& text, int x, int y)
 	{
-		FontRenderer::setColor(color.x, color.y, color.z, 1.f);
+		FontRenderer::setColor(1.0f, 1.0f, 1.0f, 1.0f); // Default white color
 		FontRenderer::setScreenResolution(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-		FontRenderer::print(location.x, location.y, size, text.c_str());
+		FontRenderer::print(x, y, 1.0f, text.c_str());
 	}
 
 	// From PhysX Tutorials
@@ -480,11 +501,51 @@ namespace Renderer
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		gluLookAt(cameraEye.x, cameraEye.y, cameraEye.z, cameraEye.x + cameraDir.x, cameraEye.y + cameraDir.y, cameraEye.z + cameraDir.z, 0.f, 1.f, 0.f);
+
+		// Set display callback
+		glutDisplayFunc([]() {
+			std::cout << "Display callback triggered." << std::endl;
+			Finish();
+		});
 	}
 
 	// From PhysX Tutorials
 	void Finish()
 	{
 		glutSwapBuffers();
+	}
+
+	// Add missing Shutdown function
+	void Shutdown()
+	{
+		std::cout << "Shutting down Renderer..." << std::endl;
+		// Perform any necessary cleanup here
+	}
+
+	// Add RenderScene function
+	void RenderScene(Actor** actors)
+	{
+		std::cout << "Rendering scene..." << std::endl;
+
+		for (int i = 0; actors[i] != nullptr; i++)
+		{
+			Actor* actor = actors[i];
+			PxRigidActor* pxActor = actor->getPxActor();
+
+			if (pxActor)
+			{
+				PxTransform pose = pxActor->getGlobalPose();
+				PxMat44 shapePose(pose);
+
+				glPushMatrix();
+				glMultMatrixf((float*)&shapePose);
+
+				// Render actor geometry (assuming a default color for now)
+				glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+				// Add rendering logic for actor geometry here
+
+				glPopMatrix();
+			}
+		}
 	}
 }
