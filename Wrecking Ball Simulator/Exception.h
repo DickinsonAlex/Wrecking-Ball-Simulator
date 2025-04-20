@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 
-#ifndef Exception_h
-#define Exception_h
+#ifndef EXCEPTION_H
+#define EXCEPTION_H
 
 class Exception
 {
@@ -13,4 +13,4 @@ public:
 
 	virtual const std::string& GetMessage() const throw() { return message; }
 };
-#endif // !Exception_h
+#endif // EXCEPTION_H

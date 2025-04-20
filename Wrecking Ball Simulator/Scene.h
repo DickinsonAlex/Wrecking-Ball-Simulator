@@ -1,21 +1,27 @@
-#pragma once
-#include <PxPhysicsAPI.h>
-#include <stdexcept>
-#include "SceneBase.h"
-#include "Crane.h"
-#include "Plane.h"
+#pragma once  
+#include "Camera.h" // Include Camera class  
+#include "Actor.h" // Include Actor class  
 
-class Scene : public SceneBase
-{
-public:
-    void Init(Camera* camera) override;
-    void CustomUpdate(physx::PxReal deltaTime, InputManager* inputManager) override;
+#ifndef SCENE_H
+#define SCENE_H  
 
-protected:
-    void AddActor(Actor* actor);
-    void AddActors(const std::vector<Actor*>& actors);
+class Scene  
+{  
+public:  
+   void Init(); // Initialize the scene  
+   void Update(float deltaTime); // Update the scene  
 
-private:
-    Crane* crane = nullptr;
-    Plane* plane = nullptr;
-};
+   // Getters  
+   Camera* getCamera() const; // Get the camera  
+   Actor* getActor() const; // Get the actor  
+
+   // Setters  
+   void setCamera(Camera* camera); // Set the camera  
+   void setActor(Actor* actor); // Set the actor  
+
+private:  
+   Camera* camera; // Pointer to the camera  
+   Actor* actor; // Pointer to the actor  
+};  
+
+#endif // SCENE_H
