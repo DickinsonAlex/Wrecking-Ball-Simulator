@@ -1,18 +1,24 @@
-#include "Engine.h"
-#include <iostream>
+#include "GameManager.h"  
 
-int main()
-{
-    try
-    {
-        Engine::Init("Mobile Crane Test", 1280, 720);
-    }
-    catch (const std::exception& e)
-    {
-        std::cout << e.what() << std::endl;
-        return 0;
-    }
+#include <iostream>  
 
-    Engine::Start();
-    return 0;
+using namespace std;  
+
+int main()  
+{  
+   try  
+   {  
+       // Initialize the game manager  
+       GameManager::Init("Wrecking Simulation", 1280, 720);
+   }  
+   catch (const exception& e)  
+   {  
+       cout << e.what() << endl;  
+       return 0;  
+   }  
+
+   GameManager::Start();
+
+   //delete gameManager; // cleanup to avoid memory leak  
+   return 0;  
 }

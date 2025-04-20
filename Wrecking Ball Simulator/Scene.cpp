@@ -1,54 +1,75 @@
-// Scene.cpp
-#include <PxPhysicsAPI.h>
-#include <stdexcept>
 #include "Scene.h"
-#include "Engine.h"
-#include "Crane.h"
-#include "Plane.h"
 
-void Scene::Init(Camera* cam)
-{
-    camera = cam;
+void Scene::Init()  
+{  
+   // Initialize camera and actor pointers to nullptr  
+   camera = nullptr;  
+   actor = nullptr;  
+}  
 
-    physx::PxSceneDesc sceneDesc(Engine::GetPhysics()->getTolerancesScale());
-    sceneDesc.flags |= physx::PxSceneFlag::eENABLE_ACTIVE_ACTORS;
+void Scene::Update(float deltaTime)  
+{  
+   // Update the camera if it exists  
+   if (camera)  
+   {  
+       camera->update(deltaTime);  
+   }  
 
-    if (!sceneDesc.cpuDispatcher)
-    {
-        physx::PxDefaultCpuDispatcher* mCpuDispatcher = physx::PxDefaultCpuDispatcherCreate(2);
-        sceneDesc.cpuDispatcher = mCpuDispatcher;
-    }
+   // Additional scene update logic can be added here  
+}  
 
-    sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
-    pxScene = Engine::GetPhysics()->createScene(sceneDesc);
+Camera* Scene::getCamera() const  
+{  
+   return camera;  
+}  
 
-    if (!pxScene)
-        throw std::runtime_error("Could not initialize Scene");
+Actor* Scene::getActor() const  
+{  
+   return actor;  
+}  
 
-    pxScene->setGravity(physx::PxVec3(0.f, -9.81f, 0.f));
+void Scene::setCamera(Camera* camera)  
+{  
+   this->camera = camera;  
+}  
 
-    plane = new Plane(physx::PxVec3(0.f, 1.f, 0.f));
-    AddActor(plane);
+void Scene::setActor(Actor* actor)  
+{  
+   this->actor = actor;  
+}  
 
-    crane = new Crane(physx::PxTransform(physx::PxVec3(0.f, 0.f, 0.f)));
-    AddActors(crane->GetActors());
+void Scene::KeyDown(unsigned char key)  
+{  
+   // Handle key down events  
+   // Example: Move the actor or camera based on key input  
+   if (actor)  
+   {  
+       PxVec3 position = actor->getPosition();  
+
+       switch (key)  
+       {  
+       case 'w':  
+           position.y += 1.0f; // Move up  
+           break;  
+       case 's':  
+           position.y -= 1.0f; // Move down  
+           break;  
+       case 'a':  
+           position.x -= 1.0f; // Move left  
+           break;  
+       case 'd':  
+           position.x += 1.0f; // Move right  
+           break;  
+       default:  
+           break;  
+       }  
+
+       actor->setPosition(position);  
+   }  
+}  
+
+void Scene::setMousePosition(PxVec2 mousePosition)  
+{  
+	// Currently will do nothing with the mouse position, will later change the camera to orbit the actor in third person and use this function
+    return;
 }
-
-void Scene::CustomUpdate(physx::PxReal deltaTime, InputManager* inputManager)
-{
-    if (crane)
-        crane->Update(deltaTime, inputManager, camera);
-}
-
-void Scene::AddActor(Actor* actor)
-{
-    if (actor && actor->GetActor())
-        pxScene->addActor(*actor->GetActor());
-}
-
-void Scene::AddActors(const std::vector<Actor*>& actors)
-{
-    for (Actor* actor : actors)
-        AddActor(actor);
-}
-

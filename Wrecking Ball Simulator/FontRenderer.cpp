@@ -1,58 +1,191 @@
-#include "FontRenderer.h"
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
 #include <GL/glut.h>
-#include <cstring>
 
-namespace FontRenderer
+#include "FontData.h"
+#include "FontRenderer.h"
+
+bool FontRenderer::m_isInit = false;
+unsigned int FontRenderer::m_textureObject = 0;
+int FontRenderer::m_screenWidth = 1280;
+int FontRenderer::m_screenHeight = 720;
+float FontRenderer::m_color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+bool FontRenderer::init()
 {
-    static float textColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    static int screenWidth = 0;
-    static int screenHeight = 0;
-    static bool initialized = false;
+	glGenTextures(1, &m_textureObject);
+	if (m_textureObject == 0) return false;
 
-    void setScreenResolution(int width, int height)
-    {
-        screenWidth = width;
-        screenHeight = height;
-        initialized = true;
-    }
+	glBindTexture(GL_TEXTURE_2D, m_textureObject);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-    void setColor(float r, float g, float b, float a)
-    {
-        textColor[0] = r;
-        textColor[1] = g;
-        textColor[2] = b;
-        textColor[3] = a;
-    }
+	// expand to rgba
+	unsigned char* pNewSource = new unsigned char[OGL_FONT_TEXTURE_WIDTH * OGL_FONT_TEXTURE_HEIGHT * 4];
+	for (int i = 0; i < OGL_FONT_TEXTURE_WIDTH * OGL_FONT_TEXTURE_HEIGHT; i++)
+	{
+		pNewSource[i * 4 + 0] = 255;
+		pNewSource[i * 4 + 1] = 255;
+		pNewSource[i * 4 + 2] = 255;
+		pNewSource[i * 4 + 3] = OGLFontData[i];
+	}
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, OGL_FONT_TEXTURE_WIDTH, OGL_FONT_TEXTURE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, pNewSource);
+	delete[] pNewSource;
 
-    void print(float x, float y, float fontSize, const char* text)
-    {
-        if (!initialized || !text) {
-            return; // Silent return if not initialized or text is null
-        }
+	return true;
+}
 
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
-        glLoadIdentity();
-        gluOrtho2D(0, screenWidth, 0, screenHeight);
-        
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        glLoadIdentity();
-        
-        glColor4f(textColor[0], textColor[1], textColor[2], textColor[3]);
-        glRasterPos2f(x, y);
-        
-        // Scale factor based on fontSize (default GLUT font is roughly 8x13)
-        float scaleFactor = fontSize / 13.0f;
-        
-        // Render each character
-        for (const char* c = text; *c; ++c) {
-            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *c);
-        }
-        
-        glPopMatrix();
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
-        glMatrixMode(GL_MODELVIEW);
-    }
+void FontRenderer::print(float x, float y, float fontSize, const char* pString, bool forceMonoSpace, int monoSpaceWidth, bool doOrthoProj)
+{
+	x = x * m_screenWidth;
+	y = y * m_screenHeight;
+	fontSize = fontSize * m_screenHeight;
+
+	if (!m_isInit)
+	{
+		m_isInit = init();
+	}
+
+	unsigned int num = (unsigned int)strlen(pString);
+	if (m_isInit && num > 0)
+	{
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_LIGHTING);
+
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, m_textureObject);
+
+
+		if (doOrthoProj)
+		{
+			glMatrixMode(GL_PROJECTION);
+			glPushMatrix();
+			glLoadIdentity();
+			glOrtho(0, m_screenWidth, 0, m_screenHeight, -1, 1);
+		}
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadIdentity();
+
+		glEnable(GL_BLEND);
+
+		glColor4f(m_color[0], m_color[1], m_color[2], m_color[3]);
+
+		const float glyphHeightUV = ((float)OGL_FONT_CHARS_PER_COL) / OGL_FONT_TEXTURE_HEIGHT * 2 - 0.01f;
+
+		float translate = 0.0f;
+
+		float* pVertList = new float[num * 3 * 6];
+		float* pTextureCoordList = new float[num * 2 * 6];
+		int vertIndex = 0;
+		int textureCoordIndex = 0;
+
+		float translateDown = 0.0f;
+		unsigned int count = 0;
+
+		for (unsigned int i = 0; i < num; i++)
+		{
+			const float glyphWidthUV = ((float)OGL_FONT_CHARS_PER_ROW) / OGL_FONT_TEXTURE_WIDTH;
+
+			if (pString[i] == '\n') {
+				translateDown -= 0.005f * m_screenHeight + fontSize;
+				translate = 0.0f;
+				continue;
+			}
+
+			int c = pString[i] - OGL_FONT_CHAR_BASE;
+			if (c < OGL_FONT_CHARS_PER_ROW * OGL_FONT_CHARS_PER_COL) {
+
+				count++;
+
+				float glyphWidth = (float)GLFontGlyphWidth[c];
+				if (forceMonoSpace) {
+					glyphWidth = (float)monoSpaceWidth;
+				}
+
+				glyphWidth = glyphWidth * (fontSize / (((float)OGL_FONT_TEXTURE_WIDTH) / OGL_FONT_CHARS_PER_ROW)) - 0.01f;
+
+				float cxUV = float((c) % OGL_FONT_CHARS_PER_ROW) / OGL_FONT_CHARS_PER_ROW + 0.008f;
+				float cyUV = float((c) / OGL_FONT_CHARS_PER_ROW) / OGL_FONT_CHARS_PER_COL + 0.008f;
+
+				pTextureCoordList[textureCoordIndex++] = cxUV;
+				pTextureCoordList[textureCoordIndex++] = cyUV + glyphHeightUV;
+				pVertList[vertIndex++] = x + 0 + translate;
+				pVertList[vertIndex++] = y + 0 + translateDown;
+				pVertList[vertIndex++] = 0;
+
+				pTextureCoordList[textureCoordIndex++] = cxUV + glyphWidthUV;
+				pTextureCoordList[textureCoordIndex++] = cyUV;
+				pVertList[vertIndex++] = x + fontSize + translate;
+				pVertList[vertIndex++] = y + fontSize + translateDown;
+				pVertList[vertIndex++] = 0;
+
+				pTextureCoordList[textureCoordIndex++] = cxUV;
+				pTextureCoordList[textureCoordIndex++] = cyUV;
+				pVertList[vertIndex++] = x + 0 + translate;
+				pVertList[vertIndex++] = y + fontSize + translateDown;
+				pVertList[vertIndex++] = 0;
+
+				pTextureCoordList[textureCoordIndex++] = cxUV;
+				pTextureCoordList[textureCoordIndex++] = cyUV + glyphHeightUV;
+				pVertList[vertIndex++] = x + 0 + translate;
+				pVertList[vertIndex++] = y + 0 + translateDown;
+				pVertList[vertIndex++] = 0;
+
+				pTextureCoordList[textureCoordIndex++] = cxUV + glyphWidthUV;
+				pTextureCoordList[textureCoordIndex++] = cyUV + glyphHeightUV;
+				pVertList[vertIndex++] = x + fontSize + translate;
+				pVertList[vertIndex++] = y + 0 + translateDown;
+				pVertList[vertIndex++] = 0;
+
+				pTextureCoordList[textureCoordIndex++] = cxUV + glyphWidthUV;
+				pTextureCoordList[textureCoordIndex++] = cyUV;
+				pVertList[vertIndex++] = x + fontSize + translate;
+				pVertList[vertIndex++] = y + fontSize + translateDown;
+				pVertList[vertIndex++] = 0;
+
+				translate += glyphWidth;
+			}
+		}
+
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glVertexPointer(3, GL_FLOAT, 0, pVertList);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glTexCoordPointer(2, GL_FLOAT, 0, pTextureCoordList);
+		glDrawArrays(GL_TRIANGLES, 0, count * 6);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDisableClientState(GL_VERTEX_ARRAY);
+
+		delete[] pVertList;
+		delete[] pTextureCoordList;
+
+		if (doOrthoProj)
+		{
+			glMatrixMode(GL_PROJECTION);
+			glPopMatrix();
+		}
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
+
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_LIGHTING);
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_BLEND);
+	}
+}
+
+void FontRenderer::setScreenResolution(int screenWidth, int screenHeight)
+{
+	m_screenWidth = screenWidth;
+	m_screenHeight = screenHeight;
+}
+
+void FontRenderer::setColor(float r, float g, float b, float a)
+{
+	m_color[0] = r;
+	m_color[1] = g;
+	m_color[2] = b;
+	m_color[3] = a;
 }

@@ -1,20 +1,36 @@
-// Camera.h
 #pragma once
-#include <PxPhysicsAPI.h>
+#include "foundation/PxTransform.h"
+#include "foundation/PxMat33.h"
+#include "foundation/PxQuat.h"
+#include "Actor.h" // Include Actor class
+
+#ifndef Camera_h
+#define Camera_h
+
+using namespace physx;
 
 class Camera
 {
 public:
-    Camera();
-    Camera(const physx::PxVec3& position, const physx::PxVec3& direction);
+	Camera(Actor* target); // Constructor
+	~Camera(); // Destructor
 
-    void SetPosition(const physx::PxVec3& position);
-    void SetDirection(const physx::PxVec3& direction);
+	// Target
+	Actor* targetActor; // Pointer to the target actor
 
-    physx::PxVec3 GetEye() const;
-    physx::PxVec3 GetDir() const;
+	// Getters
+	PxVec3 getPosition() const;
+	PxQuat getRotation() const;
+	Actor* getTargetActor() { return targetActor; };
+	
+	// Setters
+	void setTargetActor(Actor* actor);
 
+	// Update
+	void update(float deltaTime);
 private:
-    physx::PxVec3 eye;
-    physx::PxVec3 dir;
+	PxVec3 position; // Camera position
+	PxQuat rotation; // Camera rotation
 };
+
+#endif // CAMERA_H

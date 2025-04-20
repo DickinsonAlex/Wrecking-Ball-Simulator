@@ -1,28 +1,38 @@
-// Camera.cpp
 #include "Camera.h"
+#include "Actor.h" // Include Actor class
 
-Camera::Camera() {}
-
-Camera::Camera(const physx::PxVec3& position, const physx::PxVec3& direction)
-    : eye(position), dir(direction.getNormalized()) {
+Camera::Camera(Actor* target)
+{
+	targetActor = target; // Initialize target actor
+	position = PxVec3(0, 0, 0); // Default camera position
+	rotation = PxQuat(0, 0, 0, 1); // Default camera rotation
 }
 
-void Camera::SetPosition(const physx::PxVec3& position)
+Camera::~Camera()
 {
-    eye = position;
 }
 
-void Camera::SetDirection(const physx::PxVec3& direction)
+PxVec3 Camera::getPosition() const
 {
-    dir = direction.getNormalized();
+    return position;
 }
 
-physx::PxVec3 Camera::GetEye() const
+PxQuat Camera::getRotation() const
 {
-    return eye;
+    return rotation;
 }
 
-physx::PxVec3 Camera::GetDir() const
+void Camera::setTargetActor(Actor* actor)
 {
-    return dir;
+    targetActor = actor;
+}
+
+void Camera::update(float deltaTime)
+{
+    if (targetActor)
+    {
+        // Update camera position and rotation based on the target actor
+        position = targetActor->getPosition();
+        rotation = targetActor->getRotation();
+    }
 }

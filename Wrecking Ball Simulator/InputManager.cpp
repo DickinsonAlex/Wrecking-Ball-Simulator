@@ -1,76 +1,51 @@
-// InputManager.cpp
 #include "InputManager.h"
+#include <unordered_map>
 
-InputManager::InputManager()
-{
-    glutSetCursor(GLUT_CURSOR_NONE);
-    centerX = glutGet(GLUT_WINDOW_WIDTH) / 2;
-    centerY = glutGet(GLUT_WINDOW_HEIGHT) / 2;
-}
+// Constructor
+InputManager::InputManager() {}
 
+// Destructor
 InputManager::~InputManager() {}
 
-void InputManager::WindowReshape(int w, int h)
-{
-    centerX = w / 2;
-    centerY = h / 2;
+// Internal state for key and mouse tracking
+static std::unordered_map<int, bool> keyStates;
+static PxVec2 mousePosition(0.0f, 0.0f);
+
+// Initialize the input manager
+void InputManager::Init() {
+    keyStates.clear();
+    mousePosition = PxVec2(0.0f, 0.0f);
 }
 
-void InputManager::KeyDown(unsigned char key, int x, int y)
-{
-    if (key >= 'A' && key <= 'Z') key += 32;
-    if (key == 27) // Escape key
-    {
-        focused = false;
-        glutSetCursor(GLUT_CURSOR_RIGHT_ARROW);
-    }
-    gKeys[key] = true;
+// Update the input manager (placeholder for future logic)
+void InputManager::Update() {
+    // Currently no specific update logic
 }
 
-void InputManager::KeyUp(unsigned char key, int x, int y)
-{
-    if (key >= 'A' && key <= 'Z') key += 32;
-    gKeys[key] = false;
+// Check if a key is pressed
+bool InputManager::isKeyPressed(int key) const {
+    auto it = keyStates.find(key);
+    return it != keyStates.end() && it->second;
 }
 
-void InputManager::SpecialKeyDown(int key, int x, int y)
-{
-    gKeys[key] = true;
+// Get the current mouse position
+PxVec2 InputManager::getMousePosition() const {
+    return mousePosition;
 }
 
-void InputManager::SpecialKeyUp(int key, int x, int y)
-{
-    gKeys[key] = false;
+// Set a key as pressed
+void InputManager::setKeyPressed(int key) {
+    keyStates[key] = true;
 }
 
-void InputManager::CheckModifiers(int modifiers)
-{
-    shift = modifiers & GLUT_ACTIVE_SHIFT;
-    ctrl = modifiers & GLUT_ACTIVE_CTRL;
-    alt = modifiers & GLUT_ACTIVE_ALT;
+// Set a key as released
+void InputManager::setKeyReleased(int key) {
+    keyStates[key] = false;
 }
 
-void InputManager::Mouse(int button, int state, int x, int y)
-{
-    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
-    {
-        focused = true;
-        glutSetCursor(GLUT_CURSOR_NONE);
-        glutWarpPointer(centerX, centerY);
-    }
-}
-
-physx::PxVec2 InputManager::MouseMotion(int x, int y) const
-{
-    int deltaX = centerX - x;
-    int deltaY = centerY - y;
-    if (focused) glutWarpPointer(centerX, centerY);
-    return physx::PxVec2(deltaX, deltaY);
-}
-
-bool InputManager::IsKeyDown(unsigned char key) const
-{
-    if (key >= 'A' && key <= 'Z') key += 32;
-    auto it = gKeys.find(key);
-    return it != gKeys.end() && it->second;
+// Set mouse button state and position
+void InputManager::setMouse(int button, int state, int x, int y) {
+    // Update mouse position
+    mousePosition = PxVec2(static_cast<float>(x), static_cast<float>(y));
+    // Mouse button state can be handled here if needed
 }

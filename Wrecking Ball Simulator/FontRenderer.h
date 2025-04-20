@@ -1,9 +1,23 @@
-// FontRenderer.h
-#pragma once
+#ifndef FONTRENDERER_H
+#define FONTRENDERER_H
 
-namespace FontRenderer
-{
-    void setScreenResolution(int width, int height);
-    void setColor(float r, float g, float b, float a);
-    void print(float x, float y, float fontSize, const char* text);
-}
+class FontRenderer {
+
+private:
+
+	static bool m_isInit;
+	static unsigned int m_textureObject;
+	static int m_screenWidth;
+	static int m_screenHeight;
+	static float m_color[4];
+
+public:
+
+	static bool init();
+	static void print(float x, float y, float fontSize, const char* pString, bool forceMonoSpace = false, int monoSpaceWidth = 11, bool doOrthoProj = true);
+	static void setScreenResolution(int screenWidth, int screenHeight);
+	static void setColor(float r, float g, float b, float a);
+
+};
+
+#endif // FONTRENDERER_H
