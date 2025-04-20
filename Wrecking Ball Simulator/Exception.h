@@ -13,4 +13,5 @@ public:
 
 	virtual const std::string& GetMessage() const throw() { return message; }
 };
+
 #endif // EXCEPTION_H

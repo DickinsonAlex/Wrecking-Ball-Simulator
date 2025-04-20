@@ -1,5 +1,8 @@
 // auto generated don't touch
 
+#ifndef OGL_FONT_H
+#define OGL_FONT_H
+
 static const int OGL_FONT_TEXTURE_WIDTH = 256;
 static const int OGL_FONT_TEXTURE_HEIGHT = 128;
 
@@ -8,7 +11,7 @@ static const int OGL_FONT_CHARS_PER_COL = 8;
 
 static const int OGL_FONT_CHAR_BASE = 32;
 
-int GLFontGlyphWidth[OGL_FONT_CHARS_PER_ROW * OGL_FONT_CHARS_PER_COL] = {
+static const int GLFontGlyphWidth[OGL_FONT_CHARS_PER_ROW * OGL_FONT_CHARS_PER_COL] = {
 6,7,8,11,10,10,11,7,10,8,10,10,8,9,8,10,
 11,11,11,11,11,11,11,11,11,11,8,8,10,10,10,10,
 11,10,10,10,11,10,10,10,10,10,9,11,10,10,10,10,
@@ -1045,3 +1048,5 @@ unsigned char OGLFontData[OGL_FONT_TEXTURE_WIDTH * OGL_FONT_TEXTURE_HEIGHT] = {
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,32,0,0,0,0,0,0,0,0
 };
+
+#endif // __FONTS_H__

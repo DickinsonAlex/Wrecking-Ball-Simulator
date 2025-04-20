@@ -6,6 +6,9 @@
 #include "Actor.h"
 #include "Camera.h"
 
+#ifndef GAMEMANAGER_H
+#define GAMEMANAGER_H
+
 namespace GameManager {
     void Start();
     void Init(std::string title, int width, int height);
@@ -21,3 +24,5 @@ namespace GameManager {
     void mouseMotionCallback(int x, int y);
     void exitCallback();
 }
+
+#endif // GAMEMANAGER_H

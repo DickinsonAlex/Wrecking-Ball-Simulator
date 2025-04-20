@@ -1,8 +1,8 @@
 #pragma once
 #include <PxPhysicsAPI.h>
 
-#ifndef UserData_h
-#define UserData_h
+#ifndef USERDATA_H
+#define USERDATA_H
 
 using namespace physx;
 
@@ -17,5 +17,4 @@ public:
 	}
 };
 
-#endif // !UserData_h
-#pragma once
+#endif // !USERDATA_H

@@ -28,7 +28,9 @@ public:
 
 	// Update
 	void update(float deltaTime);
-
+private:
+	PxVec3 position; // Camera position
+	PxQuat rotation; // Camera rotation
 };
 
 #endif // CAMERA_H

@@ -1,8 +1,8 @@
 #pragma once
 #include <PxPhysicsAPI.h>
 
-#ifndef InputManager_h
-#define InputManager_h
+#ifndef INPUTMANAGER_H
+#define INPUTMANAGER_H
 
 using namespace physx;
 

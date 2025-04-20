@@ -3,6 +3,9 @@
 #include <string>
 #include "Actor.h"
 
+#ifndef RENDERER_H
+#define RENDERER_H
+
 namespace Renderer {
     void Init(std::string name, int width, int height);
     void Shutdown();
@@ -10,3 +13,5 @@ namespace Renderer {
     void RenderScene(Actor** actors);
     void RenderText(const std::string& text, int x, int y);
 }
+
+#endif // RENDERER_H
