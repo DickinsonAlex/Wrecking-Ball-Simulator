@@ -1,4 +1,5 @@
 #pragma once  
+#include <PxPhysicsAPI.h> // Include PhysX API
 #include "Camera.h" // Include Camera class  
 #include "Actor.h" // Include Actor class  
 
@@ -18,6 +19,10 @@ public:
    // Setters  
    void setCamera(Camera* camera); // Set the camera  
    void setActor(Actor* actor); // Set the actor  
+
+   void KeyDown(unsigned char key); // Handle key down events
+   void setMousePosition(PxVec2); // Set mouse position
+
 
 private:  
    Camera* camera; // Pointer to the camera  

@@ -1,6 +1,7 @@
 #include "GameManager.h"
 #include "Exception.h"
 #include "PxPhysicsAPI.h" // Include PhysX API for PxPhysics and PxCooking
+#include <GL/glut.h> // Include OpenGL Utility Toolkit for window management
 
 #include <chrono>
 #include <vector>
@@ -23,15 +24,20 @@ namespace GameManager
 	PxPvd* pvd = 0;
 	PxPhysics* physics = 0;
 	PxCooking* cooking = 0;
+	PxReal deltaTime = 1.f / 60.f;
 
 	void Start() {
-		glutMainLoop()
+		glutMainLoop();
 	}
 
-	void Init() {
+	void Init(string title, int width, int height)
+	{
 		// Initialize the scene
 		PxInit();
-		
+
+		renderer = new Renderer();
+		renderer->Init(title, width, height);
+
 		scene = new Scene();
 		scene->Init();
 
@@ -49,8 +55,6 @@ namespace GameManager
 
 		glutKeyboardFunc(KeyPress);
 		glutKeyboardUpFunc(KeyRelease);
-		glutSpecialFunc(KeySpecial);
-		glutSpecialUpFunc(KeySpecialRelease);
 		glutMouseFunc(mouseCallback);
 		glutMotionFunc(mouseMotionCallback);
 		glutPassiveMotionFunc(mouseMotionCallback);
@@ -63,7 +67,7 @@ namespace GameManager
 	void Update() {
 		// Update the scene
 		if (scene) {
-			scene->Update();
+			scene->Update(deltaTime);
 		}
 	}
 
@@ -142,5 +146,34 @@ namespace GameManager
 			delete scene;
 		}
 		scene = newScene;
+	}
+
+	void KeyPress(unsigned char key, int x, int y)
+	{
+		inputManager->setKeyPressed(key);
+		scene->KeyDown(key);
+	}
+
+	void KeyRelease(unsigned char key, int x, int y)
+	{
+		inputManager->setKeyReleased(key);
+	}
+
+	void mouseCallback(int button, int state, int x, int y)
+	{
+
+		inputManager->setMouse(button, state, x, y);
+	}
+
+	void mouseMotionCallback(int x, int y)
+	{
+		scene->setMousePosition(inputManager->getMousePosition());
+	}
+
+	void exitCallback(void)
+	{
+		delete scene;
+		delete camera;
+		PxShutdown();
 	}
 }

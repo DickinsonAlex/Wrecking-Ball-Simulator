@@ -4,14 +4,12 @@
 #include "Actor.h" // Include Actor class
 #include "Renderer.h" // Include Renderer class
 
-#ifndef GameManager_h
-#define GameManager_h
+#ifndef GAMEMANAGER_H
+#define GAMEMANAGER_H
 
 class GameManager
 {
-private: 
-	void Start(); // Initialize the game engine
-	void Init();
+private:
 	void Update();
 
 	// From PhysX Tutorials
@@ -20,13 +18,18 @@ private:
 	PxMaterial* GetMaterial(PxU32 index = 0);
 	PxMaterial* CreateMaterial(PxReal staticFriction = .0f, PxReal dynamicFriction = .0f, PxReal coefficientRestitution = .0f);
 
-
 	Scene* scene; // Pointer to the scene
 	PxPhysics* physics; // Pointer to the physics engine
 	PxCooking* cooking; // Pointer to the cooking engine
 	float Uptime; // Uptime of the game
 
 public:
+	GameManager() {} // Constructor
+	~GameManager() {} // Destructor
+
+	void Start(); // Initialize the game engine
+	void Init(string, int width, int height); // Initialize the game engine with title and dimensions
+
 	// Getters
 	Scene* getScene() { return scene; };
 	PxPhysics* getPhysics() { return physics; };

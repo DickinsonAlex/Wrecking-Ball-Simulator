@@ -1,22 +1,26 @@
-#include "GameManager.h"
+#include "GameManager.h"  
 
-#include <iostream>
+#include <iostream>  
 
-using namespace std;
+using namespace std;  
 
-int main()
-{
-	try
-	{
-		GameManager::Init("Destruction", 1280, 720);
-	}
-	catch (const exception& e)
-	{
-		cout << e.what() << endl;
-		return 0;
-	}
+int main()  
+{  
+   GameManager* gameManager = new GameManager(); 
 
-	GameManager::Start();
+   try  
+   {  
+       // Initialize the game manager  
+       gameManager->Init("Wrecking Simulation", 1280, 720);  
+   }  
+   catch (const exception& e)  
+   {  
+       cout << e.what() << endl;  
+       return 0;  
+   }  
 
-	return 0;
+   gameManager->Start();  
+
+   //delete gameManager; // cleanup to avoid memory leak  
+   return 0;  
 }

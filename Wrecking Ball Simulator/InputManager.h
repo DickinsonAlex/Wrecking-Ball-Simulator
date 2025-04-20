@@ -17,8 +17,12 @@ public:
 
 	// Getters
 	bool isKeyPressed(int key) const;
-	bool isKeyDown(int key) const;
 	PxVec2 getMousePosition() const;
+
+	// Setters
+	void setKeyPressed(int key);
+	void setKeyReleased(int key);
+	void setMouse(int button, int state, int x, int y); // Set mouse position
 };
 
 #endif // INPUTMANAGER_H

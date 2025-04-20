@@ -11,7 +11,7 @@ using namespace std;
 class Renderer
 {
 public:
-	void Init(); // Initialize the renderer
+	void Init(string name, int width, int height); // Initialize the renderer
 	void Shutdown(); // Shutdown the renderer
 
 	void RezizeWindow(int width, int height); // Resize the window
