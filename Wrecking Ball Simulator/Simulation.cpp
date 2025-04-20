@@ -6,12 +6,10 @@ using namespace std;
 
 int main()  
 {  
-   GameManager* gameManager = new GameManager(); 
-
    try  
    {  
        // Initialize the game manager  
-       gameManager->Init("Wrecking Simulation", 1280, 720);  
+       GameManager::Init("Wrecking Simulation", 1280, 720);
    }  
    catch (const exception& e)  
    {  
@@ -19,7 +17,7 @@ int main()
        return 0;  
    }  
 
-   gameManager->Start();  
+   GameManager::Start();
 
    //delete gameManager; // cleanup to avoid memory leak  
    return 0;  

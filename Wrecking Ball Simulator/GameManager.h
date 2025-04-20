@@ -1,43 +1,23 @@
 #pragma once
-#include "Scene.h" // Include Scene class
-#include "InputManager.h" // Include InputManager class
-#include "Actor.h" // Include Actor class
-#include "Renderer.h" // Include Renderer class
+#include <string>
+#include "Scene.h"
+#include "InputManager.h"
+#include "Renderer.h"
+#include "Actor.h"
+#include "Camera.h"
 
-#ifndef GAMEMANAGER_H
-#define GAMEMANAGER_H
-
-class GameManager
-{
-private:
-	void Update();
-
-	// From PhysX Tutorials
-	void PxInit();
-	void PxShutdown();
-	PxMaterial* GetMaterial(PxU32 index = 0);
-	PxMaterial* CreateMaterial(PxReal staticFriction = .0f, PxReal dynamicFriction = .0f, PxReal coefficientRestitution = .0f);
-
-	Scene* scene; // Pointer to the scene
-	PxPhysics* physics; // Pointer to the physics engine
-	PxCooking* cooking; // Pointer to the cooking engine
-	float Uptime; // Uptime of the game
-
-public:
-	GameManager() {} // Constructor
-	~GameManager() {} // Destructor
-
-	void Start(); // Initialize the game engine
-	void Init(string, int width, int height); // Initialize the game engine with title and dimensions
-
-	// Getters
-	Scene* getScene() { return scene; };
-	PxPhysics* getPhysics() { return physics; };
-	PxCooking* getCooking() { return cooking; };
-	float GetUptime() { return Uptime; }; // Get the uptime of the game
-
-	// Setters
-	void setScene(Scene* scene);
-};
-
-#endif // GAMEMANAGER_H
+namespace GameManager {
+    void Start();
+    void Init(std::string title, int width, int height);
+    void Update();
+    void PxInit();
+    void PxShutdown();
+    PxMaterial* GetMaterial(PxU32 index);
+    PxMaterial* CreateMaterial(PxReal staticFriction, PxReal dynamicFriction, PxReal coefficientRestitution);
+    void setScene(Scene* newScene);
+    void KeyPress(unsigned char key, int x, int y);
+    void KeyRelease(unsigned char key, int x, int y);
+    void mouseCallback(int button, int state, int x, int y);
+    void mouseMotionCallback(int x, int y);
+    void exitCallback();
+}
