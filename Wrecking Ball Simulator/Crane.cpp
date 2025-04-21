@@ -7,6 +7,12 @@
 Crane::Crane(const PxTransform& pose, float baseSize, float beamThickness, float sectionLength, float height, float length)
 	: baseSize(baseSize), beamThickness(beamThickness), sectionLength(sectionLength), height(height), length(length)
 {
+	// Adjust dimensions for a smaller crane
+	baseSize = 5.0f; // Smaller base size
+	height = 10.0f;  // Reduced height
+	length = 8.0f;   // Shorter arm length
+
+	// Create a solid box bottom for the crane
 	shaft = new CraneShaft(
 		PxTransform(PxVec3(pose.p.x, pose.p.y, pose.p.z), pose.q),
 		baseSize,
@@ -14,33 +20,33 @@ Crane::Crane(const PxTransform& pose, float baseSize, float beamThickness, float
 		sectionLength,
 		height
 	);
+
+	// Adjust arm and hook positions to match the smaller crane
 	arm = new CraneArm(
-		PxTransform(PxVec3(pose.p.x, (floor(height / sectionLength) * sectionLength) + beamThickness + pose.p.y, pose.p.z), pose.q),
+		PxTransform(PxVec3(pose.p.x, height + pose.p.y, pose.p.z), pose.q),
 		baseSize,
 		beamThickness,
 		sectionLength,
 		length
 	);
 
-	float hookSize = 2.f;
-
+	float hookSize = 1.5f; // Adjust hook size
 	hook = new CraneHook(
-		PxTransform(PxVec3(pose.p.x, (floor(height / sectionLength) * sectionLength) + beamThickness + pose.p.y, pose.p.z), pose.q),
+		PxTransform(PxVec3(pose.p.x, height + pose.p.y, pose.p.z), pose.q),
 		baseSize,
 		beamThickness,
-		floor(length / sectionLength) * sectionLength,
+		length,
 		hookSize
 	);
 
-	float wreckingBallRadius = 2.f;
-
+	float wreckingBallRadius = 1.5f; // Adjust wrecking ball size
 	ball = new WreckingBall(
-		PxTransform(PxVec3(pose.p.x, ((floor(height / sectionLength) * sectionLength) + beamThickness + pose.p.y - wreckingBallRadius - (hookSize * .6f)) * .25f, hook->getMinExtension() * 2 + pose.p.z), pose.q),
+		PxTransform(PxVec3(pose.p.x, height + pose.p.y - wreckingBallRadius - (hookSize * 0.6f), pose.p.z), pose.q),
 		wreckingBallRadius,
 		1.f
 	);
 
-	chain = new Chain((Actor*)hook, PxVec3(0.f, -(hookSize * .6f), hook->getMinExtension()), (Actor*)ball, PxVec3(0.f, wreckingBallRadius, 0.f));
+	chain = new Chain((Actor*)hook, PxVec3(0.f, -(hookSize * 0.6f), hook->getMinExtension()), (Actor*)ball, PxVec3(0.f, wreckingBallRadius, 0.f));
 }
 
 Crane::~Crane()
@@ -74,407 +80,45 @@ vector<Actor*> Crane::getActors()
 CraneShaft::CraneShaft(const PxTransform& pose, float baseSize, float beamThickness, float sectionLength, float height)
 	: StaticActor(pose)
 {
-	int numSections = floor(height / sectionLength);
+	// Replace beam-based structure with a solid box bottom
+	vector<PxVec3> boxVertices = {
+		PxVec3(-baseSize / 2, 0.f, -baseSize / 2),
+		PxVec3(-baseSize / 2, 0.f, baseSize / 2),
+		PxVec3(baseSize / 2, 0.f, baseSize / 2),
+		PxVec3(baseSize / 2, 0.f, -baseSize / 2),
 
-	vector<PxVec3> cornerBeam = {
-		PxVec3(-beamThickness / 2, 0.f, -beamThickness / 2),
-		PxVec3(-beamThickness / 2, 0.f, beamThickness / 2),
-		PxVec3(beamThickness / 2, 0.f, beamThickness / 2),
-		PxVec3(beamThickness / 2, 0.f, -beamThickness / 2),
-
-		PxVec3(-beamThickness / 2, numSections * sectionLength, -beamThickness / 2),
-		PxVec3(-beamThickness / 2, numSections * sectionLength, beamThickness / 2),
-		PxVec3(beamThickness / 2, numSections * sectionLength, beamThickness / 2),
-		PxVec3(beamThickness / 2, numSections * sectionLength, -beamThickness / 2)
+		PxVec3(-baseSize / 2, height, -baseSize / 2),
+		PxVec3(-baseSize / 2, height, baseSize / 2),
+		PxVec3(baseSize / 2, height, baseSize / 2),
+		PxVec3(baseSize / 2, height, -baseSize / 2)
 	};
 
-	// Make the 4 cuboids that make up the corners of the shaft
-	createShape(
-		PhysicsEngine::CreateConvexMeshGeometry(cornerBeam, -baseSize / 2 + beamThickness / 2, 0.f, -baseSize / 2 + beamThickness / 2),
-		1.0f
-	);
+	createShape(PhysicsEngine::CreateConvexMeshGeometry(boxVertices), 1.0f);
 
-	createShape(
-		PhysicsEngine::CreateConvexMeshGeometry(cornerBeam, baseSize / 2 - beamThickness / 2, 0.f, -baseSize / 2 + beamThickness / 2),
-		1.0f
-	);
-
-	createShape(
-		PhysicsEngine::CreateConvexMeshGeometry(cornerBeam, baseSize / 2 - beamThickness / 2, 0.f, baseSize / 2 - beamThickness / 2),
-		1.0f
-	);
-
-	createShape(
-		PhysicsEngine::CreateConvexMeshGeometry(cornerBeam, -baseSize / 2 + beamThickness / 2, 0.f, baseSize / 2 - beamThickness / 2),
-		1.0f
-	);
-
-	vector<PxVec3> sideBeam = {
-		PxVec3(0.f, 0.f, -baseSize / 2 + beamThickness),
-		PxVec3(0.f, 0.f, baseSize / 2 - beamThickness),
-		PxVec3(beamThickness, 0.f, baseSize / 2 - beamThickness),
-		PxVec3(beamThickness, 0.f, -baseSize / 2 + beamThickness),
-
-		PxVec3(0.f, beamThickness, -baseSize / 2 + beamThickness),
-		PxVec3(0.f, beamThickness, baseSize / 2 - beamThickness),
-		PxVec3(beamThickness, beamThickness, baseSize / 2 - beamThickness),
-		PxVec3(beamThickness, beamThickness, -baseSize / 2 + beamThickness)
-	};
-
-	float latOffset = (beamThickness / 2) / cos(atan((baseSize - (2 * beamThickness)) / (sectionLength - (2 * beamThickness))));
-	vector<PxVec3> crossBrace = {
-		PxVec3(0.f, 0.f, -baseSize / 2 + beamThickness),
-		PxVec3(0.f, 0.f, -baseSize / 2 + beamThickness + latOffset),
-		PxVec3(0.f, sectionLength - beamThickness - latOffset, baseSize / 2 - beamThickness),
-
-		PxVec3(beamThickness, sectionLength - beamThickness - latOffset, baseSize / 2 - beamThickness),
-		PxVec3(beamThickness, 0.f, -baseSize / 2 + beamThickness + latOffset),
-		PxVec3(beamThickness, 0.f, -baseSize / 2 + beamThickness),
-
-
-		PxVec3(0.f, latOffset, -baseSize / 2 + beamThickness),
-		PxVec3(0.f, sectionLength - beamThickness, baseSize / 2 - beamThickness - latOffset),
-		PxVec3(0.f, sectionLength - beamThickness, baseSize / 2 - beamThickness),
-
-		PxVec3(beamThickness, sectionLength - beamThickness, baseSize / 2 - beamThickness),
-		PxVec3(beamThickness, sectionLength - beamThickness, baseSize / 2 - beamThickness - latOffset),
-		PxVec3(beamThickness, latOffset, -baseSize / 2 + beamThickness)
-	};
-
-	for (int i = 0; i < numSections; i++)
-	{
-		// Side sections
-		createShape(
-			PhysicsEngine::CreateConvexMeshGeometry(sideBeam, -baseSize / 2, i * sectionLength, 0.f),
-			1.0f
-		);
-		createShape(
-			PhysicsEngine::CreateConvexMeshGeometry(sideBeam, 0.f, i * sectionLength, -baseSize / 2, PxVec3(0.f, PxPi / 2, 0.f)),
-			1.0f
-		);
-		createShape(
-			PhysicsEngine::CreateConvexMeshGeometry(sideBeam, baseSize / 2, i * sectionLength, 0.f, PxVec3(0.f, PxPi, 0.f)),
-			1.0f
-		);
-		createShape(
-			PhysicsEngine::CreateConvexMeshGeometry(sideBeam, 0.f, i * sectionLength, baseSize / 2, PxVec3(0.f, -PxPi / 2, 0.f)),
-			1.0f
-		);
-
-		// Cross braces
-		createShape(
-			PhysicsEngine::CreateConvexMeshGeometry(crossBrace, -baseSize / 2, i * sectionLength + beamThickness, 0.f),
-			1.0f
-		);
-		createShape(
-			PhysicsEngine::CreateConvexMeshGeometry(crossBrace, 0.f, i * sectionLength + beamThickness, -baseSize / 2, PxVec3(0.f, PxPi / 2, 0.f)),
-			1.0f
-		);
-		createShape(
-			PhysicsEngine::CreateConvexMeshGeometry(crossBrace, baseSize / 2, i * sectionLength + beamThickness, 0.f, PxVec3(0.f, PxPi, 0.f)),
-			1.0f
-		);
-		createShape(
-			PhysicsEngine::CreateConvexMeshGeometry(crossBrace, 0.f, i * sectionLength + beamThickness, baseSize / 2, PxVec3(0.f, -PxPi / 2, 0.f)),
-			1.0f
-		);
-	}
-
-	// Top section
-	createShape(
-		PhysicsEngine::CreateConvexMeshGeometry(vector<PxVec3>(
-			{
-				PxVec3(-baseSize / 2, 0.f, -baseSize / 2),
-				PxVec3(-baseSize / 2, 0.f, baseSize / 2),
-				PxVec3(baseSize / 2, 0.f, baseSize / 2),
-				PxVec3(baseSize / 2, 0.f, -baseSize / 2),
-
-				PxVec3(-baseSize / 2, beamThickness, -baseSize / 2),
-				PxVec3(-baseSize / 2, beamThickness, baseSize / 2),
-				PxVec3(baseSize / 2, beamThickness, baseSize / 2),
-				PxVec3(baseSize / 2, beamThickness, -baseSize / 2)
-			}
-		), 0.f, numSections * sectionLength, 0.f),
-		1.0f
-	);
-
-	setColour(PxVec3(1.f, 0.f, 0.f));
+	// Set the color to yellow
+	setColour(PxVec3(1.f, 1.f, 0.f));
 }
 
 CraneArm::CraneArm(const PxTransform& pose, float baseSize, float beamThickness, float sectionLength, float length)
 	: StaticActor(pose)
 {
-	// Front section
-	int numSections_front = floor(length / sectionLength);
-
-	vector<PxVec3> hCornerBeams_front = {
+	// Adjust arm dimensions for the smaller crane
+	vector<PxVec3> armVertices = {
 		PxVec3(-beamThickness / 2, 0.f, 0.f),
-		PxVec3(-beamThickness / 2, 0.f, numSections_front * sectionLength + beamThickness),
-		PxVec3(beamThickness / 2, 0.f, numSections_front * sectionLength + beamThickness),
+		PxVec3(-beamThickness / 2, 0.f, length),
+		PxVec3(beamThickness / 2, 0.f, length),
 		PxVec3(beamThickness / 2, 0.f, 0.f),
 
 		PxVec3(-beamThickness / 2, beamThickness, 0.f),
-		PxVec3(-beamThickness / 2, beamThickness, numSections_front * sectionLength + beamThickness),
-		PxVec3(beamThickness / 2, beamThickness, numSections_front * sectionLength + beamThickness),
+		PxVec3(-beamThickness / 2, beamThickness, length),
+		PxVec3(beamThickness / 2, beamThickness, length),
 		PxVec3(beamThickness / 2, beamThickness, 0.f)
 	};
 
-	createShape(PhysicsEngine::CreateConvexMeshGeometry(hCornerBeams_front, -baseSize / 2 + beamThickness / 2, 0.f, 0.f), 1.0f);
-	createShape(PhysicsEngine::CreateConvexMeshGeometry(hCornerBeams_front, baseSize / 2 - beamThickness / 2, 0.f, 0.f), 1.0f);
-	createShape(PhysicsEngine::CreateConvexMeshGeometry(hCornerBeams_front, 0.f, baseSize - beamThickness, 0.f), 1.0f);
+	createShape(PhysicsEngine::CreateConvexMeshGeometry(armVertices), 1.0f);
 
-	float latOffset = (beamThickness / 2) / cos(atan((baseSize - (2 * beamThickness)) / (sectionLength - (2 * beamThickness))));
-
-	float diagHorzOffset_Outer = latOffset * cos(atan(baseSize / (baseSize / 2)));
-	float diagVertOffset_Outer = latOffset * sin(atan(baseSize / (baseSize / 2)));
-
-	float diagHorzOffset_Inner = latOffset * cos(atan((baseSize - beamThickness) / (baseSize / 2 - beamThickness)));
-	float diagVertOffset_Inner = latOffset * sin(atan((baseSize - beamThickness) / (baseSize / 2 - beamThickness)));
-
-	for (int i = 0; i < numSections_front + 1; i++)
-	{
-		// Create the side beams
-		createShape(PhysicsEngine::CreateConvexMeshGeometry(vector<PxVec3>(
-			{
-				PxVec3(-baseSize / 2 + beamThickness / 2, 0.f, 0.f),
-				PxVec3(-baseSize / 2 + beamThickness / 2, 0.f, beamThickness),
-				PxVec3(baseSize / 2 - beamThickness / 2, 0.f, beamThickness),
-				PxVec3(baseSize / 2 - beamThickness / 2, 0.f, 0.f),
-
-				PxVec3(-baseSize / 2 + beamThickness / 2, beamThickness, 0.f),
-				PxVec3(-baseSize / 2 + beamThickness / 2, beamThickness, beamThickness),
-				PxVec3(baseSize / 2 - beamThickness / 2, beamThickness, beamThickness),
-				PxVec3(baseSize / 2 - beamThickness / 2, beamThickness, 0.f)
-			}
-		), 0.f, 0.f, i * sectionLength), 1.0f);
-
-		createShape(PhysicsEngine::CreateConvexMeshGeometry(vector<PxVec3>(
-			{
-				PxVec3(-baseSize / 2 + beamThickness, beamThickness, 0.f),
-				PxVec3(-baseSize / 2 + beamThickness, beamThickness, beamThickness),
-				PxVec3(0.f, baseSize - beamThickness, 0.f),
-				PxVec3(0.f, baseSize - beamThickness, beamThickness),
-
-				PxVec3(-baseSize / 2, beamThickness, 0.f),
-				PxVec3(-baseSize / 2, beamThickness, beamThickness),
-				PxVec3(-beamThickness / 2, baseSize, 0.f),
-				PxVec3(-beamThickness / 2, baseSize, beamThickness)
-
-			}
-		), 0.f, 0.f, i * sectionLength), 1.0f);
-
-		createShape(PhysicsEngine::CreateConvexMeshGeometry(vector<PxVec3>(
-			{
-				PxVec3(0.f, baseSize - beamThickness, 0.f),
-				PxVec3(0.f, baseSize - beamThickness, beamThickness),
-				PxVec3(baseSize / 2 - beamThickness, beamThickness, 0.f),
-				PxVec3(baseSize / 2 - beamThickness, beamThickness, beamThickness),
-
-				PxVec3(beamThickness / 2, baseSize, 0.f),
-				PxVec3(beamThickness / 2, baseSize, beamThickness),
-				PxVec3(baseSize / 2, beamThickness, 0.f),
-				PxVec3(baseSize / 2, beamThickness, beamThickness)
-			}
-		), 0.f, 0.f, i * sectionLength), 1.0f);
-
-		if (i == numSections_front) continue;
-
-		// Create the cross braces
-		createShape(PhysicsEngine::CreateConvexMeshGeometry(vector<PxVec3>(
-			{
-				PxVec3(baseSize / 2 - beamThickness - latOffset, 0.f, beamThickness),
-				PxVec3(-baseSize / 2 + beamThickness, 0.f, sectionLength - latOffset),
-				PxVec3(-baseSize / 2 + beamThickness, 0.f, sectionLength),
-
-				PxVec3(baseSize / 2 - beamThickness, 0.f, beamThickness),
-				PxVec3(baseSize / 2 - beamThickness, 0.f, beamThickness + latOffset),
-				PxVec3(-baseSize / 2 + beamThickness + latOffset, 0.f, sectionLength),
-
-
-				PxVec3(baseSize / 2 - beamThickness - latOffset, beamThickness, beamThickness),
-				PxVec3(-baseSize / 2 + beamThickness, beamThickness, sectionLength - latOffset),
-				PxVec3(-baseSize / 2 + beamThickness, beamThickness, sectionLength),
-
-				PxVec3(baseSize / 2 - beamThickness, beamThickness, beamThickness),
-				PxVec3(baseSize / 2 - beamThickness, beamThickness, beamThickness + latOffset),
-				PxVec3(-baseSize / 2 + beamThickness + latOffset, beamThickness, sectionLength),
-			}
-			), 0.f, 0.f, i * sectionLength), 1.0f);
-
-		createShape(PhysicsEngine::CreateConvexMeshGeometry(vector<PxVec3>(
-			{
-				PxVec3(-baseSize / 2, beamThickness, beamThickness),
-				PxVec3(-baseSize / 2, beamThickness, beamThickness + latOffset),
-				PxVec3(-beamThickness / 2 - diagHorzOffset_Outer, baseSize - diagVertOffset_Outer, sectionLength),
-
-				PxVec3(-beamThickness / 2 - diagHorzOffset_Inner, baseSize - beamThickness - diagVertOffset_Inner, sectionLength),
-				PxVec3(-baseSize / 2 + beamThickness, beamThickness, beamThickness + latOffset),
-				PxVec3(-baseSize / 2 + beamThickness, beamThickness, beamThickness),
-
-
-				PxVec3(-baseSize / 2 + diagHorzOffset_Outer, beamThickness + diagVertOffset_Outer, beamThickness),
-				PxVec3(-beamThickness / 2, baseSize, sectionLength - latOffset),
-				PxVec3(-beamThickness / 2, baseSize, sectionLength),
-
-				PxVec3(0.f, baseSize - beamThickness, sectionLength),
-				PxVec3(0.f, baseSize - beamThickness, sectionLength - latOffset),
-				PxVec3(-baseSize / 2 + diagHorzOffset_Inner, beamThickness + diagVertOffset_Inner, beamThickness)
-			}
-		), 0.f, 0.f, i * sectionLength), 1.0f);
-
-		createShape(PhysicsEngine::CreateConvexMeshGeometry(vector<PxVec3>(
-			{
-				PxVec3(diagHorzOffset_Inner, baseSize - beamThickness - diagVertOffset_Inner, beamThickness),
-				PxVec3(baseSize / 2 - beamThickness, beamThickness, sectionLength - latOffset),
-				PxVec3(baseSize / 2 - beamThickness, beamThickness, sectionLength),
-
-				PxVec3(baseSize / 2, beamThickness, sectionLength),
-				PxVec3(baseSize / 2, beamThickness, sectionLength - latOffset),
-				PxVec3(beamThickness / 2 + diagHorzOffset_Outer, baseSize - diagVertOffset_Outer, beamThickness),
-
-
-				PxVec3(0.f, baseSize - beamThickness, beamThickness),
-				PxVec3(0.f, baseSize - beamThickness, beamThickness + latOffset),
-				PxVec3(baseSize / 2 - diagHorzOffset_Inner, beamThickness + diagVertOffset_Inner, sectionLength),
-
-				PxVec3(baseSize / 2 - diagHorzOffset_Inner, beamThickness + diagVertOffset_Inner, sectionLength),
-				PxVec3(beamThickness / 2 + diagHorzOffset_Outer, baseSize - diagVertOffset_Outer, beamThickness),
-				PxVec3(beamThickness / 2, baseSize, beamThickness)
-			}
-		), 0.f, 0.f, i * sectionLength), 1.0f);
-	}
-
-	// Back section (counterweight)
-	int numSections_back = floor((float)numSections_front / 3);
-
-	vector<PxVec3> hCornerBeams_back = {
-		PxVec3(-beamThickness / 2, 0.f, 0.f),
-		PxVec3(-beamThickness / 2, 0.f, -numSections_back * sectionLength),
-		PxVec3(beamThickness / 2, 0.f, -numSections_back * sectionLength),
-		PxVec3(beamThickness / 2, 0.f, 0.f),
-
-		PxVec3(-beamThickness / 2, beamThickness, 0.f),
-		PxVec3(-beamThickness / 2, beamThickness, -numSections_back * sectionLength),
-		PxVec3(beamThickness / 2, beamThickness, -numSections_back * sectionLength),
-		PxVec3(beamThickness / 2, beamThickness, 0.f)
-	};
-
-	createShape(PhysicsEngine::CreateConvexMeshGeometry(hCornerBeams_back, -baseSize / 2 + beamThickness / 2, 0.f, 0.f), 1.0f);
-	createShape(PhysicsEngine::CreateConvexMeshGeometry(hCornerBeams_back, baseSize / 2 - beamThickness / 2, 0.f, 0.f), 1.0f);
-	createShape(PhysicsEngine::CreateConvexMeshGeometry(hCornerBeams_back, 0.f, baseSize - beamThickness, 0.f), 1.0f);
-
-	for (int i = 1; i < numSections_back + 1; i++)
-	{
-		// Create the side beams
-		createShape(PhysicsEngine::CreateConvexMeshGeometry(vector<PxVec3>(
-			{
-				PxVec3(-baseSize / 2 + beamThickness / 2, 0.f, 0.f),
-				PxVec3(-baseSize / 2 + beamThickness / 2, 0.f, beamThickness),
-				PxVec3(baseSize / 2 - beamThickness / 2, 0.f, beamThickness),
-				PxVec3(baseSize / 2 - beamThickness / 2, 0.f, 0.f),
-
-				PxVec3(-baseSize / 2 + beamThickness / 2, beamThickness, 0.f),
-				PxVec3(-baseSize / 2 + beamThickness / 2, beamThickness, beamThickness),
-				PxVec3(baseSize / 2 - beamThickness / 2, beamThickness, beamThickness),
-				PxVec3(baseSize / 2 - beamThickness / 2, beamThickness, 0.f)
-			}
-		), 0.f, 0.f, -i * sectionLength), 1.0f);
-
-		createShape(PhysicsEngine::CreateConvexMeshGeometry(vector<PxVec3>(
-			{
-				PxVec3(-baseSize / 2 + beamThickness, beamThickness, 0.f),
-				PxVec3(-baseSize / 2 + beamThickness, beamThickness, beamThickness),
-				PxVec3(0.f, baseSize - beamThickness, 0.f),
-				PxVec3(0.f, baseSize - beamThickness, beamThickness),
-
-				PxVec3(-baseSize / 2, beamThickness, 0.f),
-				PxVec3(-baseSize / 2, beamThickness, beamThickness),
-				PxVec3(-beamThickness / 2, baseSize, 0.f),
-				PxVec3(-beamThickness / 2, baseSize, beamThickness)
-
-			}
-		), 0.f, 0.f, -i * sectionLength), 1.0f);
-
-		createShape(PhysicsEngine::CreateConvexMeshGeometry(vector<PxVec3>(
-			{
-				PxVec3(0.f, baseSize - beamThickness, 0.f),
-				PxVec3(0.f, baseSize - beamThickness, beamThickness),
-				PxVec3(baseSize / 2 - beamThickness, beamThickness, 0.f),
-				PxVec3(baseSize / 2 - beamThickness, beamThickness, beamThickness),
-
-				PxVec3(beamThickness / 2, baseSize, 0.f),
-				PxVec3(beamThickness / 2, baseSize, beamThickness),
-				PxVec3(baseSize / 2, beamThickness, 0.f),
-				PxVec3(baseSize / 2, beamThickness, beamThickness)
-			}
-		), 0.f, 0.f, -i * sectionLength), 1.0f);
-
-		// Create the cross braces
-		createShape(PhysicsEngine::CreateConvexMeshGeometry(vector<PxVec3>(
-			{
-				PxVec3(baseSize / 2 - beamThickness - latOffset, 0.f, beamThickness),
-				PxVec3(-baseSize / 2 + beamThickness, 0.f, sectionLength - latOffset),
-				PxVec3(-baseSize / 2 + beamThickness, 0.f, sectionLength),
-
-				PxVec3(baseSize / 2 - beamThickness, 0.f, beamThickness),
-				PxVec3(baseSize / 2 - beamThickness, 0.f, beamThickness + latOffset),
-				PxVec3(-baseSize / 2 + beamThickness + latOffset, 0.f, sectionLength),
-
-
-				PxVec3(baseSize / 2 - beamThickness - latOffset, beamThickness, beamThickness),
-				PxVec3(-baseSize / 2 + beamThickness, beamThickness, sectionLength - latOffset),
-				PxVec3(-baseSize / 2 + beamThickness, beamThickness, sectionLength),
-
-				PxVec3(baseSize / 2 - beamThickness, beamThickness, beamThickness),
-				PxVec3(baseSize / 2 - beamThickness, beamThickness, beamThickness + latOffset),
-				PxVec3(-baseSize / 2 + beamThickness + latOffset, beamThickness, sectionLength),
-			}
-			), 0.f, 0.f, -i * sectionLength), 1.0f);
-
-		createShape(PhysicsEngine::CreateConvexMeshGeometry(vector<PxVec3>(
-			{
-				PxVec3(-baseSize / 2, beamThickness, beamThickness),
-				PxVec3(-baseSize / 2, beamThickness, beamThickness + latOffset),
-				PxVec3(-beamThickness / 2 - diagHorzOffset_Outer, baseSize - diagVertOffset_Outer, sectionLength),
-
-				PxVec3(-beamThickness / 2 - diagHorzOffset_Inner, baseSize - beamThickness - diagVertOffset_Inner, sectionLength),
-				PxVec3(-baseSize / 2 + beamThickness, beamThickness, beamThickness + latOffset),
-				PxVec3(-baseSize / 2 + beamThickness, beamThickness, beamThickness),
-
-
-				PxVec3(-baseSize / 2 + diagHorzOffset_Outer, beamThickness + diagVertOffset_Outer, beamThickness),
-				PxVec3(-beamThickness / 2, baseSize, sectionLength - latOffset),
-				PxVec3(-beamThickness / 2, baseSize, sectionLength),
-
-				PxVec3(0.f, baseSize - beamThickness, sectionLength),
-				PxVec3(0.f, baseSize - beamThickness, sectionLength - latOffset),
-				PxVec3(-baseSize / 2 + diagHorzOffset_Inner, beamThickness + diagVertOffset_Inner, beamThickness)
-			}
-		), 0.f, 0.f, -i * sectionLength), 1.0f);
-
-		createShape(PhysicsEngine::CreateConvexMeshGeometry(vector<PxVec3>(
-			{
-				PxVec3(diagHorzOffset_Inner, baseSize - beamThickness - diagVertOffset_Inner, beamThickness),
-				PxVec3(baseSize / 2 - beamThickness, beamThickness, sectionLength - latOffset),
-				PxVec3(baseSize / 2 - beamThickness, beamThickness, sectionLength),
-
-				PxVec3(baseSize / 2, beamThickness, sectionLength),
-				PxVec3(baseSize / 2, beamThickness, sectionLength - latOffset),
-				PxVec3(beamThickness / 2 + diagHorzOffset_Outer, baseSize - diagVertOffset_Outer, beamThickness),
-
-
-				PxVec3(0.f, baseSize - beamThickness, beamThickness),
-				PxVec3(0.f, baseSize - beamThickness, beamThickness + latOffset),
-				PxVec3(baseSize / 2 - diagHorzOffset_Inner, beamThickness + diagVertOffset_Inner, sectionLength),
-
-				PxVec3(baseSize / 2 - diagHorzOffset_Inner, beamThickness + diagVertOffset_Inner, sectionLength),
-				PxVec3(beamThickness / 2 + diagHorzOffset_Outer, baseSize - diagVertOffset_Outer, beamThickness),
-				PxVec3(beamThickness / 2, baseSize, beamThickness)
-			}
-		), 0.f, 0.f, -i * sectionLength), 1.0f);
-	}
-
-	setColour(PxVec3(1.f, 0.f, 0.f));
+	// Set the color to yellow
+	setColour(PxVec3(1.f, 1.f, 0.f));
 }
 
 CraneHook::CraneHook(const PxTransform& pose, float baseSize, float beamThickness, float length, float hookSize)
