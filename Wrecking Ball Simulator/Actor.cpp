@@ -188,16 +188,22 @@ DynamicActor::~DynamicActor()
 		delete (UserData*)getShape(i)->userData;
 }
 
-// From PhysX Tutorials
-void DynamicActor::createShape(const PxGeometry& geometry, PxReal density)
+void DynamicActor::createShape(const PxGeometry& geometry, PxReal density)  
 {
-	PxShape* shape = ((PxRigidDynamic*)pxActor)->createShape(geometry, *PhysicsEngine::getMaterial());
-	PxRigidBodyExt::updateMassAndInertia(*(PxRigidDynamic*)pxActor, density);
-	colours.push_back(PhysicsEngine::DefaultColour);
-	//pass the Colour pointers to the renderer
-	shape->userData = new UserData();
-	for (unsigned int i = 0; i < colours.size(); i++)
-		((UserData*)getShape(i)->userData)->color = &colours[i];
+   PxMaterial* material = PhysicsEngine::getMaterial();  
+   PxShapeFlags shapeFlags = PxShapeFlag::eVISUALIZATION | PxShapeFlag::eSCENE_QUERY_SHAPE | PxShapeFlag::eSIMULATION_SHAPE;  
+   PxShape* shape = ((PxRigidDynamic*)pxActor)->createShape(geometry, *material, shapeFlags);  
+
+   if (!shape) {  
+       std::cerr << "Error: createShape failed. Check pxActor, geometry, and material." << std::endl;  
+       //return;  
+   }  
+
+   PxRigidBodyExt::updateMassAndInertia(*(PxRigidDynamic*)pxActor, density);  
+   colours.push_back(PhysicsEngine::DefaultColour);  
+   shape->userData = new UserData();  
+   for (unsigned int i = 0; i < colours.size(); i++)  
+       ((UserData*)getShape(i)->userData)->color = &colours[i];  
 }
 
 // From PhysX Tutorials

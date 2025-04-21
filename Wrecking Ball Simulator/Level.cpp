@@ -10,19 +10,28 @@ void Level::spawnFeatures()
 	ground->setName("Ground");
     addActor(ground);
 
-	house = new House(PxTransform(PxVec3(0.f, 0.f, 0.f)));
-	house->setName("House");
-	addActors(house->GetActors());
+	// Create the house and add it to the scene
+	structure_1 = new Structure(PxTransform(PxVec3(10.f, 10.f, 80.f)), 3, 4, 4); // Pose, floors, width, depth)
+	addActors(structure_1->getActors());
 
-    wrecker = new Wrecker(PxTransform(PxVec3(0.f, 0.f, 0.f)));
-    wrecker->setName("Wrecking Ball Machine");
-    addActors(wrecker->GetActors());
-
-
+	printf("Level features spawned successfully.\n");
 }
 
 void Level::updateFeatures(float deltaTime, InputManager* inputManager)
 {
-    // Implementation for updating features in the scene
+    // Implementation for updating features in the scene like the camera, crane, and destruction
     return;
+}
+
+vector<Actor*> Level::getActors()
+{
+    vector<Actor*> actors;
+
+    actors.push_back(ground);
+    //for (Actor* actor : wrecker->GetActors())
+     //   actors.push_back(actor);
+    for (Actor* actor : structure_1->getActors())
+        actors.push_back(actor);
+
+    return actors;
 }

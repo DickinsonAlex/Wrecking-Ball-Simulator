@@ -10,8 +10,10 @@
 
 namespace PhysicsEngine 
 {
+	using namespace std;
+
 	void Start();
-	void Init(std::string title, int width, int height);
+	void Init(const char* title, int width, int height);
 	void Update();
 	void PxInit();
 	void PxShutdown();
@@ -23,6 +25,7 @@ namespace PhysicsEngine
 	PxCooking* getCooking();
 	Scene* getScene();
 	PxMaterial* getMaterial(PxU32 index = 0);
+	PxReal getUptime();
 
 	// Setters
 	void setScene(Scene* newScene);

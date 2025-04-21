@@ -10,8 +10,8 @@ DistanceJoint::DistanceJoint(Actor* actor0, const PxTransform& localTransform0, 
 	joint->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 	((PxDistanceJoint*)joint)->setDistanceJointFlag(PxDistanceJointFlag::eSPRING_ENABLED, true);
 
-	SetDamping(1.f);
-	SetStiffness(1.f);
+	setDamping(1.f);
+	setStiffness(1.f);
 }
 
 RevoluteJoint::RevoluteJoint(Actor* actor0, const PxTransform& localFrame0, Actor* actor1, const PxTransform& localFrame1)
@@ -23,13 +23,13 @@ RevoluteJoint::RevoluteJoint(Actor* actor0, const PxTransform& localFrame0, Acto
 	joint->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 }
 
-void RevoluteJoint::SetLimits(PxReal lower, PxReal upper)
+void RevoluteJoint::setLimits(PxReal lower, PxReal upper)
 {
 	((PxRevoluteJoint*)joint)->setLimit(PxJointAngularLimitPair(lower, upper));
 	((PxRevoluteJoint*)joint)->setRevoluteJointFlag(PxRevoluteJointFlag::eLIMIT_ENABLED, true);
 }
 
-void RevoluteJoint::SetDriveVelocity(PxReal value)
+void RevoluteJoint::setDriveVelocity(PxReal value)
 {
 	PxRigidDynamic* actor0 = nullptr;
 	PxRigidDynamic* actor1 = nullptr;
@@ -79,22 +79,22 @@ D6Joint::D6Joint(Actor* actor0, const PxTransform& localFrame0, Actor* actor1, c
 	((PxD6Joint*)joint)->setMotion(PxD6Axis::eSWING1, PxD6Motion::eLIMITED);
 	((PxD6Joint*)joint)->setMotion(PxD6Axis::eSWING2, PxD6Motion::eLIMITED);
 
-	SetTwistLimit(-PxPi / 8, PxPi / 8);
-	SetSwingLimit(PxPi / 6, PxPi / 6);
+	setTwistLimit(-PxPi / 8, PxPi / 8);
+	setSwingLimit(PxPi / 6, PxPi / 6);
 }
 
-void D6Joint::SetMotion(PxD6Axis::Enum axis, PxD6Motion::Enum motion)
+void D6Joint::setMotion(PxD6Axis::Enum axis, PxD6Motion::Enum motion)
 {
 	((PxD6Joint*)joint)->setMotion(axis, motion);
 }
 
-void D6Joint::SetTwistLimit(PxReal lower, PxReal upper)
+void D6Joint::setTwistLimit(PxReal lower, PxReal upper)
 {
 	PxJointAngularLimitPair limit(lower, upper);
 	((PxD6Joint*)joint)->setTwistLimit(limit);
 }
 
-void D6Joint::SetSwingLimit(PxReal yLimit, PxReal zLimit)
+void D6Joint::setSwingLimit(PxReal yLimit, PxReal zLimit)
 {
 	PxJointLimitCone swingLimit(yLimit, zLimit);
 	((PxD6Joint*)joint)->setSwingLimit(swingLimit);

@@ -25,10 +25,10 @@ class DistanceJoint : public Joint
 public:
 	DistanceJoint(Actor* actor0, const PxTransform& localTransform0, Actor* actor1, const PxTransform& localTransform1);
 
-	void SetStiffness(PxReal value) { ((PxDistanceJoint*)joint)->setStiffness(value); }
+	void setStiffness(PxReal value) { ((PxDistanceJoint*)joint)->setStiffness(value); }
 	PxReal GetStiffness() const { return ((PxDistanceJoint*)joint)->getStiffness(); }
 
-	void SetDamping(PxReal value) { ((PxDistanceJoint*)joint)->setDamping(value); }
+	void setDamping(PxReal value) { ((PxDistanceJoint*)joint)->setDamping(value); }
 	PxReal GetDamping() const { return ((PxDistanceJoint*)joint)->getDamping(); }
 };
 
@@ -38,9 +38,9 @@ class RevoluteJoint : public Joint
 public:
 	RevoluteJoint(Actor* actor0, const PxTransform& localFrame0, Actor* actor1, const PxTransform& localFrame1);
 
-	void SetLimits(PxReal lower, PxReal upper);
+	void setLimits(PxReal lower, PxReal upper);
 
-	void SetDriveVelocity(PxReal value);
+	void setDriveVelocity(PxReal value);
 	PxReal GetDriveVelocity() const { return ((PxRevoluteJoint*)joint)->getDriveVelocity(); }
 };
 
@@ -57,9 +57,9 @@ class D6Joint : public Joint
 public:
 	D6Joint(Actor* actor0, const PxTransform& localFrame0, Actor* actor1, const PxTransform& localFrame1);
 
-	void SetMotion(PxD6Axis::Enum axis, PxD6Motion::Enum motion);
-	void SetTwistLimit(PxReal lower, PxReal upper);
-	void SetSwingLimit(PxReal yLimit, PxReal zLimit);
+	void setMotion(PxD6Axis::Enum axis, PxD6Motion::Enum motion);
+	void setTwistLimit(PxReal lower, PxReal upper);
+	void setSwingLimit(PxReal yLimit, PxReal zLimit);
 };
 
 

@@ -10,24 +10,27 @@
 #ifndef RENDERER_H  
 #define RENDERER_H  
 
-namespace Renderer {  
-   void Init(const std::string& title, int width, int height);
-   void End();  
-   void ResizeWindow(int width, int height);  
-   void RenderText(const std::string& text, int x, int y);  
-   void RenderBuffer(float* pVertList, float* pColourList, int type, int num);  
-   void DrawPlane();  
-   void DrawSphere(const physx::PxGeometryHolder& geometry);  
-   void DrawBox(const physx::PxGeometryHolder& geometry);  
-   void DrawCapsule(const physx::PxGeometryHolder& geometry);  
-   void DrawConvexMesh(const physx::PxGeometryHolder& geometry);  
-   void DrawTriangleMesh(const physx::PxGeometryHolder& geometry);  
-   void RenderGeometry(const physx::PxGeometryHolder& geometry);  
-   void RenderCloth(const physx::PxCloth* cloth);  
-   void Render(const physx::PxActor** actors, const physx::PxU32 numActors);  
-   void Render(const physx::PxRenderBuffer& data, physx::PxReal lineWidth);  
-   void Start(const physx::PxVec3& cameraEye, const physx::PxVec3& cameraDir);  
-   void End();  
+namespace Renderer 
+{  
+	using namespace std;
+	using namespace physx;
+
+	void ResizeWindow(int width, int height);
+
+	void Init(const char* title, int width, int height);
+
+	void Render(PxActor** actors, const PxU32 numActors);
+	void Render(const PxRenderBuffer& data, PxReal lineWidth = 1.f);
+
+	void RenderText(const string& text, const PxVec2& position, const PxVec3& color, PxReal size);
+
+	void Start(const PxVec3& cameraEye, const PxVec3& cameraDir);
+	void End();
+
+	void SetRenderDetail(int value);
+
+	void ShowShadows(bool value);
+	bool AreShadowsVisible();
 }  
 
 #endif // RENDERER_H

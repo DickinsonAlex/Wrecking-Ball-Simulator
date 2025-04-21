@@ -1,6 +1,7 @@
 #include "PhysicsEngine.h"
 #include "Exception.h"
 #include "PxPhysicsAPI.h"
+
 #include <GL/glut.h>
 #include <iostream>
 #include <chrono>
@@ -14,7 +15,7 @@ using namespace chrono;
 namespace PhysicsEngine {
     Scene* scene = nullptr;
     InputManager* inputManager = nullptr;
-    Actor* player = nullptr;
+    Crane* crane = nullptr;
     Camera* camera = nullptr;
 
 	// PhysX variables
@@ -32,18 +33,14 @@ namespace PhysicsEngine {
         glutMainLoop();
     }
 
-    void Init(std::string title, int width, int height) {
+    void Init(const char* title, int width, int height) {
         PxInit();
+
+		// Initialize the window
         Renderer::Init(title, width, height);
 
-        player = new Actor();
-        player->setName("Player");
-        player->setPosition(PxVec3(10, 10, 10));
-        player->setRotation(PxQuat(PxIdentity));
 
-        camera = new Camera(player);
-
-        // Input
+		// Create the input manager
         inputManager = new InputManager();
         glutKeyboardFunc(KeyPress);
         glutKeyboardUpFunc(KeyRelease);
@@ -53,12 +50,20 @@ namespace PhysicsEngine {
         atexit(exitCallback);
         mouseMotionCallback(width / 2, height / 2);
 
-		// Scene
+		// Create the scene
         scene = new Level();
         scene->Init(camera, inputManager);
-        scene->setCamera(camera);
-		scene->addActor(player);
 
+		// Create the crane
+        crane = new Crane(PxTransform(PxVec3(0.f, 0.f, 0.f)));
+        scene-> addActors(crane->getActors());
+
+		// Initialize the camera
+        camera = new Camera(crane);
+        scene->setCamera(camera);
+		scene->addActors(crane->getActors());
+
+		// Set the scene in the physics engine
         glutDisplayFunc(RenderScene);
         glutReshapeFunc(windowReshapeCallback);
     }
@@ -179,24 +184,19 @@ namespace PhysicsEngine {
         auto physicsTime = duration_cast<milliseconds>(endPhysics - startPhysics).count();
         auto startTime = high_resolution_clock::now();
 
-        Renderer::Start(camera->getPosition(), camera->getOrientation());
+        Renderer::Start(camera->getPosition(), camera->getDirection());
 
         vector<PxActor*> actors = scene->getPxActors();
 
         if (!actors.empty())
         {
-			printf("Rendering %zu actors\n", actors.size());
-            // Create a temporary array of const PxActor* pointers
-            vector<const PxActor*> constActors(actors.begin(), actors.end());
-
-            // Pass the temporary array to Renderer::Render
-            Renderer::Render(constActors.data(), static_cast<PxU32>(constActors.size()));
+            Renderer::Render(&actors[0], (PxU32)actors.size());
         }
 
         auto endRender = high_resolution_clock::now();
         auto renderTime = duration_cast<milliseconds>(endRender - startTime).count();
 
-        printf("Physics: %lldms, Render: %lldms\n", physicsTime, renderTime);
+        //printf("Physics: %lldms, Render: %lldms\n", physicsTime, renderTime);
 
 		Renderer::End();
 
@@ -232,4 +232,8 @@ namespace PhysicsEngine {
         delete camera;
         PxShutdown();
     }
+
+    PxReal getUptime() {
+		return Uptime;
+	}
 }

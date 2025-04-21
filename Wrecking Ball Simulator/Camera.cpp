@@ -17,7 +17,7 @@ PxVec3 Camera::getPosition() const
     return position;
 }
 
-PxVec3 Camera::getOrientation() const
+PxVec3 Camera::getDirection() const
 {
     return orientation;
 }
@@ -32,7 +32,9 @@ void Camera::update(float deltaTime)
     if (targetActor)
     {
         // Update camera position and rotation based on the target actor
-        position = targetActor->getPosition();
-        orientation = targetActor->getOrientation();
+		position = targetActor->getPosition() + PxVec3(0, 90, -25); // offset
+
+        // Looking down on target actor
+		orientation = targetActor->getOrientation() + PxVec3(0, -40, 70); // offset
     }
 }

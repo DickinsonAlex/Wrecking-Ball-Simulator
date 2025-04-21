@@ -48,13 +48,16 @@
     <ClInclude Include="Level.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Wrecker.h">
+    <ClInclude Include="Crane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Joints.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="House.h">
+    <ClInclude Include="Structure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Collider.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -98,13 +101,16 @@
     <ClCompile Include="Helpful.h">
       <Filter>Header Files</Filter>
     </ClCompile>
-    <ClCompile Include="Wrecker.cpp">
+    <ClCompile Include="Crane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Joints.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="House.cpp">
+    <ClCompile Include="Structure.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Collider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
