@@ -183,7 +183,11 @@ namespace GameManager {
 
         if (!actors.empty())
         {
-            Renderer::Render(&actors[0], (PxU32)actors.size());
+            // Create a temporary array of const PxActor* pointers
+            vector<const PxActor*> constActors(actors.begin(), actors.end());
+
+            // Pass the temporary array to Renderer::Render
+            Renderer::Render(constActors.data(), static_cast<PxU32>(constActors.size()));
         }
 
         Renderer::Shutdown();

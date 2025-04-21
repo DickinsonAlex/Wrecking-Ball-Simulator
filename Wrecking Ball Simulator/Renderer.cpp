@@ -505,11 +505,4 @@ namespace Renderer
 	{
 		glutSwapBuffers();
 	}
-
-	// Add missing Shutdown function
-	void Shutdown()
-	{
-		std::cout << "Shutting down Renderer..." << std::endl;
-		// Perform any necessary cleanup here
-	}
 }
