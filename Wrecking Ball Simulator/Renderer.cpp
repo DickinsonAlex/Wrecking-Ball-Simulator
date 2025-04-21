@@ -3,7 +3,7 @@
 #include "FontRenderer.h" // Include FontRenderer for text rendering
 #include <GL/glut.h> // Include OpenGL Utility Toolkit for window management
 
-#include <vector>Re
+#include <vector>
 #include <string>
 #include <iostream> // Include iostream for logging
 
@@ -12,8 +12,9 @@ using namespace physx;
 
 namespace Renderer
 {
+	// OpenGL variables
 	PxVec3 defaultColour = PxVec3(0.f, 0.f, 0.f);
-	PxVec3 backgroundColour = PxVec3(135.f / 255.f, 206.f / 255.f, 235.f / 255.f);
+	PxVec3 backgroundColour = PxVec3(40.f, 560.f, 450.f);
 	int renderDetail = 10;
 	bool renderShadows = true;
 
@@ -230,7 +231,25 @@ namespace Renderer
 	// From PhysX Tutorials
 	void Init(const std::string& title, int width, int height)
 	{
-		std::cout << "Initializing Renderer with title: " << title << ", width: " << width << ", height: " << height << std::endl;
+		std::cout << "Initializing Window with title: " << title << ", width: " << width << ", height: " << height << std::endl;
+
+		char* titleStr = new char[strlen(title.c_str()) + 1];
+		strcpy_s(titleStr, strlen(title.c_str()) + 1, title.c_str());
+		int argc = 1;
+		char* argv[1] = { titleStr };
+
+		glutInit(&argc, argv);
+
+		glutInitWindowSize(width, height);
+		glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+		glutSetWindow(glutCreateWindow(title.c_str()));
+
+		// Debug log to confirm window creation
+		std::cout << "GLUT window created successfully." << std::endl;
+
+		glutIdleFunc(idleCallback);
+
+		delete[] titleStr;
 
 		// Setup default render states
 		PxReal specular_material[] = { .1f, .1f, .1f, 1.f };
@@ -249,32 +268,6 @@ namespace Renderer
 		glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseColor);
 		glLightfv(GL_LIGHT0, GL_POSITION, position);
 		glEnable(GL_LIGHT0);
-
-		InitWindow(title.c_str(), width, height);
-	}
-
-	// From PhysX Tutorials
-	void InitWindow(const char* title, int width, int height)
-	{
-		std::cout << "Initializing Window with title: " << title << ", width: " << width << ", height: " << height << std::endl;
-
-		char* titleStr = new char[strlen(title) + 1];
-		strcpy_s(titleStr, strlen(title) + 1, title);
-		int argc = 1;
-		char* argv[1] = { titleStr };
-
-		glutInit(&argc, argv);
-
-		glutInitWindowSize(width, height);
-		glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-		glutSetWindow(glutCreateWindow(title));
-
-		// Debug log to confirm window creation
-		std::cout << "GLUT window created successfully." << std::endl;
-
-		glutIdleFunc(idleCallback);
-
-		delete[] titleStr;
 	}
 
 	void RenderBuffer(float* pVertList, float* pColorList, int type, int num)
@@ -492,16 +485,10 @@ namespace Renderer
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		gluLookAt(cameraEye.x, cameraEye.y, cameraEye.z, cameraEye.x + cameraDir.x, cameraEye.y + cameraDir.y, cameraEye.z + cameraDir.z, 0.f, 1.f, 0.f);
-
-		// Set display callback
-		glutDisplayFunc([]() {
-			std::cout << "Display callback triggered." << std::endl;
-			Shutdown();
-		});
 	}
 
 	// From PhysX Tutorials
-	void Shutdown()
+	void End()
 	{
 		glutSwapBuffers();
 	}

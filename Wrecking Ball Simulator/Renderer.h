@@ -11,11 +11,9 @@
 #define RENDERER_H  
 
 namespace Renderer {  
-   void Init(const std::string& title, int width, int height);  
-   void InitWindow(const char* title, int width, int height);  
-   void Shutdown();  
+   void Init(const std::string& title, int width, int height);
+   void End();  
    void ResizeWindow(int width, int height);  
-   void RenderScene(Actor** actors);  
    void RenderText(const std::string& text, int x, int y);  
    void RenderBuffer(float* pVertList, float* pColorList, int type, int num);  
    void DrawPlane();  
@@ -29,7 +27,7 @@ namespace Renderer {
    void Render(const physx::PxActor** actors, const physx::PxU32 numActors);  
    void Render(const physx::PxRenderBuffer& data, physx::PxReal lineWidth);  
    void Start(const physx::PxVec3& cameraEye, const physx::PxVec3& cameraDir);  
-   void Shutdown();  
+   void End();  
 }  
 
 #endif // RENDERER_H

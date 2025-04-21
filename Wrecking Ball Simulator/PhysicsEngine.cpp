@@ -38,9 +38,8 @@ namespace PhysicsEngine {
 
         player = new Actor();
         player->setName("Player");
-        player->setPosition(PxVec3(0, 0, 0));
+        player->setPosition(PxVec3(10, 10, 10));
         player->setRotation(PxQuat(PxIdentity));
-		scene->addActor(player);
 
         camera = new Camera(player);
 
@@ -54,9 +53,11 @@ namespace PhysicsEngine {
         atexit(exitCallback);
         mouseMotionCallback(width / 2, height / 2);
 
+		// Scene
         scene = new Level();
         scene->Init(camera, inputManager);
         scene->setCamera(camera);
+		scene->addActor(player);
 
         glutDisplayFunc(RenderScene);
         glutReshapeFunc(windowReshapeCallback);
@@ -184,14 +185,13 @@ namespace PhysicsEngine {
 
         if (!actors.empty())
         {
+			printf("Rendering %zu actors\n", actors.size());
             // Create a temporary array of const PxActor* pointers
             vector<const PxActor*> constActors(actors.begin(), actors.end());
 
             // Pass the temporary array to Renderer::Render
             Renderer::Render(constActors.data(), static_cast<PxU32>(constActors.size()));
         }
-
-        Renderer::Shutdown();
 
         auto endRender = high_resolution_clock::now();
         auto renderTime = duration_cast<milliseconds>(endRender - startTime).count();
