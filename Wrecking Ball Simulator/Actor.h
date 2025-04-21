@@ -13,7 +13,7 @@ class Actor
 {  
 protected:  
    int id; // Actor ID  
-   PxActor* pxActor; // Pointer to the actor  
+   PxRigidActor* pxActor; // Pointer to the actor  
    string name; // Actor name  
    vector<PxVec3> colours; // Shape Colours  
 
@@ -22,7 +22,7 @@ public:
    virtual ~Actor(); // Destructor  
 
    // Getters  
-   PxActor* getPxActor() { return pxActor; }; // Get the PxActor pointer  
+   PxRigidActor* getPxActor() { return pxActor; }; // Get the PxActor pointer  
    string getName(); // Get the actor name  
    const int getId() const { return id; }; // Get the actor ID  
    PxVec3 getPosition() const; // Get the actor position  

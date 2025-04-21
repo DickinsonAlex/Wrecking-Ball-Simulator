@@ -26,12 +26,15 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="FontRenderer.h" />
+    <ClInclude Include="House.h" />
+    <ClInclude Include="Joints.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="PhysicsEngine.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="UserData.h" />
+    <ClInclude Include="Wrecker.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp" />
@@ -39,6 +42,8 @@
     <ClCompile Include="FontData.h" />
     <ClCompile Include="FontRenderer.cpp" />
     <ClCompile Include="Helpful.h" />
+    <ClCompile Include="House.cpp" />
+    <ClCompile Include="Joints.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="PhysicsEngine.cpp" />
     <ClCompile Include="InputManager.cpp" />
@@ -47,6 +52,7 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Simulation.cpp" />
+    <ClCompile Include="Wrecker.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{6296bfcf-60e3-4d2c-b6fc-d6e19e6fd049}</ProjectGuid>

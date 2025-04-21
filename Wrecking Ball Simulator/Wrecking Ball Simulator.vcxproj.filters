@@ -48,6 +48,15 @@
     <ClInclude Include="Level.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Wrecker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Joints.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="House.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="InputManager.cpp">
@@ -88,6 +97,15 @@
     </ClCompile>
     <ClCompile Include="Helpful.h">
       <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrecker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Joints.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="House.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
