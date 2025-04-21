@@ -1,91 +1,125 @@
+// Crane.h
 #pragma once
-// No changes needed in the header file for this modification.
+
 #include "Collider.h"
 #include "Joints.h"
 #include "InputManager.h"
 #include "Camera.h"
+#include <vector>
 
 #ifndef Crane_h
 #define Crane_h
 
-class CraneShaft : public StaticActor
+class CraneBase : public StaticActor
 {
 public:
-	CraneShaft(const PxTransform& pose = PxTransform(PxIdentity), float baseSize = 2.5f, float beamThickness = .15f, float sectionLength = 2.f, float height = 80.f);
+    CraneBase(const PxTransform& pose = PxTransform(PxIdentity),
+        float baseSize = 2.5f,
+        float beamThickness = .15f,
+        float sectionLength = 2.f,
+        float height = 80.f);
 };
 
-class CraneArm : public StaticActor
+class CraneArm : public Actor
 {
 public:
-	CraneArm(const PxTransform& pose = PxTransform(PxIdentity), float baseSize = 2.5f, float beamThickness = .15f, float sectionLength = 2.f, float length = 50.f);
+    CraneArm(const PxTransform& pose = PxTransform(PxIdentity),
+        float beamThickness = .15f,
+        float sectionLength = 2.f);
+    ~CraneArm();
+
+    // Expose actors for rendering/physics
+    std::vector<Actor*> getActors() const;
+
+private:
+    StaticActor* lowerArm;
+    DynamicActor* upperArm;
+    RevoluteJoint* elbowJoint;
 };
 
 class CraneHook : public StaticActor
 {
 public:
-	CraneHook(const PxTransform& pose = PxTransform(PxIdentity), float baseSize = 2.5f, float beamThickness = .15f, float length = 50.f, float hookSize = 2.f);
+    CraneHook(const PxTransform& pose = PxTransform(PxIdentity),
+        float baseSize = 2.5f,
+        float beamThickness = .15f,
+        float length = 50.f,
+        float hookSize = 2.f);
 
-	float getMinExtension() const { return minExtension; }
-	float getMaxExtension() const { return maxExtension; }
+    float getMinExtension() const { return minExtension; }
+    float getMaxExtension() const { return maxExtension; }
+    float getExtensionSpeed() const { return extensionSpeed; }
 
-	float getExtensionSpeed() const { return extensionSpeed; }
 private:
-	float minExtension, maxExtension;
-	float extensionSpeed = 0.1f;
+    float minExtension, maxExtension;
+    float extensionSpeed = 0.1f;
 };
 
 class ChainLink : public DynamicActor
 {
 public:
-	ChainLink(const PxTransform& pose = PxTransform(PxIdentity));
+    ChainLink(const PxTransform& pose = PxTransform(PxIdentity));
 
-	static float getSize() { return 1.f; }
+    static float getSize() { return 1.f; }
 };
 
 class Chain
 {
 public:
-	Chain(Actor* start, PxVec3 startOffset, Actor* end, PxVec3 endOffset);
-	~Chain();
+    Chain(Actor* start, PxVec3 startOffset, Actor* end, PxVec3 endOffset);
+    ~Chain();
 
-	float getLength() const { return length; }
-	vector<Actor*> getActors();
+    float getLength() const { return length; }
+    std::vector<Actor*> getActors() const;
+
 private:
-	float length;
-	vector<ChainLink*> links;
-	vector<RevoluteJoint*> joints;
+    float length;
+    std::vector<ChainLink*> links;
+    std::vector<RevoluteJoint*> joints;
+};
+
+class Wheel : public StaticActor
+{
+public:
+    Wheel(const PxTransform& pose);
 };
 
 class WreckingBall : public Collider
 {
 public:
-	WreckingBall(const PxTransform& pose = PxTransform(PxIdentity), float radius = 1.f, float density = 1.f);
+    WreckingBall(const PxTransform& pose = PxTransform(PxIdentity),
+        float radius = 1.f,
+        float density = 1.f);
 
-	void CustomUpdate(float deltaTime) {}
-
-	void OnCollision(Collider* other);
+    void CustomUpdate(float deltaTime) override {}
+    void OnCollision(Collider* other) override;
 };
 
 class Crane : public Actor
 {
 public:
-	Crane(const PxTransform& pose = PxTransform(PxIdentity), float baseSize = 2.5f, float beamThickness = .15f, float sectionLength = 2.f, float height = 80.f, float length = 50.f);
-	~Crane();
+    Crane(const PxTransform& pose = PxTransform(PxIdentity),
+        float baseSize = 2.5f,
+        float chassisHeight = .15f,
+        float sectionLength = 2.f,
+        float height = 80.f,
+        float length = 50.f);
+    ~Crane();
 
-	void Update(PxReal deltaTime, InputManager* inputManager, Camera* camera);
-
-	vector<Actor*> getActors();
+    void Update(PxReal deltaTime, InputManager* inputManager, Camera* camera) override;
+    std::vector<Actor*> getActors() override;
 
 private:
-	float baseSize, beamThickness, sectionLength, height, length;
+    float baseSize, beamThickness, sectionLength, height, length;
 
-	CraneShaft* shaft;
-	CraneArm* arm;
-	CraneHook* hook;
-	Chain* chain;
-	WreckingBall* ball;
+    CraneBase* base;
+    CraneArm* arm;
+    CraneHook* hook;
+    Chain* chain;
+    WreckingBall* ball;
+    std::vector<Wheel*> wheels;
 
-	float rotationSpeed = 0.005f;
+    float rotationSpeed = 0.005f;
 };
 
-#endif // !Crane_h
+#endif // Crane_h

@@ -55,7 +55,7 @@ namespace PhysicsEngine {
         scene->Init(camera, inputManager);
 
 		// Create the crane
-        crane = new Crane(PxTransform(PxVec3(0.f, 0.f, 0.f)));
+		crane = new Crane(PxTransform(PxVec3(0.f, 0.f, 0.f)), 6.f, 6.f, 2.f, 12.f, 10.f);
         scene-> addActors(crane->getActors());
 
 		// Initialize the camera
