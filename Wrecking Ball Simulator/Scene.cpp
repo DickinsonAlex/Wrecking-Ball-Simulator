@@ -1,11 +1,11 @@
 #include "Scene.h"
-#include "Camera.h"
-#include "GameManager.h"
-#include "InputManager.h"
-#include "Actor.h"
+#include "PhysicsEngine.h"
 #include "Exception.h"
-#include <PxPhysicsAPI.h>
+#include "UserData.h"
 #include "Primatives.h"
+
+#include <GL/glut.h>
+#include <PxPhysicsAPI.h>
 
 using namespace std; 
 
@@ -14,7 +14,7 @@ void Scene::Init(Camera* cam, InputManager* iM)
     camera = cam;
 	inputManager = iM;
 
-    PxSceneDesc sceneDesc(GameManager::getPhysics()->getTolerancesScale());
+    PxSceneDesc sceneDesc(PhysicsEngine::getPhysics()->getTolerancesScale());
     sceneDesc.flags |= PxSceneFlag::eENABLE_ACTIVE_ACTORS;
 
     if (!sceneDesc.cpuDispatcher)
@@ -25,7 +25,7 @@ void Scene::Init(Camera* cam, InputManager* iM)
 
     sceneDesc.filterShader = PxDefaultSimulationFilterShader;
 
-    pxScene = GameManager::getPhysics()->createScene(sceneDesc);
+    pxScene = PhysicsEngine::getPhysics()->createScene(sceneDesc);
 
     if (!pxScene)
         throw new Exception("Could not Initialise Scene.");

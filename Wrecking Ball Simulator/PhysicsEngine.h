@@ -5,10 +5,10 @@
 #include "InputManager.h"
 #include "Renderer.h"
 
-#ifndef GAMEMANAGER_H
-#define GAMEMANAGER_H
+#ifndef PHYSICSENGINE_H
+#define PHYSICSENGINE_H
 
-namespace GameManager 
+namespace PhysicsEngine 
 {
 	void Start();
 	void Init(std::string title, int width, int height);
@@ -40,4 +40,4 @@ namespace GameManager
 	PxConvexMeshGeometry CreateConvexMeshGeometry(vector<PxVec3>& verts, float x = 0.f, float y = 0.f, float z = 0.f, PxVec3 rotation = PxVec3(0.f, 0.f, 0.f));
 }
 
-#endif // GAMEMANAGER_H
+#endif // PHYSICSENGINE_H

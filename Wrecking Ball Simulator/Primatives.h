@@ -1,9 +1,7 @@
 #pragma once
 #include "Actor.h"
-#include "GameManager.h"
+#include "PhysicsEngine.h"
 #include "Exception.h"
-
-using namespace GameManager;
 
 #ifndef PRIMATIVES_H
 #define PRIMATIVES_H
@@ -73,12 +71,12 @@ public:
 	{
 		PxDefaultMemoryOutputStream stream;
 
-		if (!getCooking()->cookConvexMesh(mesh_desc, stream))
+		if (!PhysicsEngine::getCooking()->cookConvexMesh(mesh_desc, stream))
 			throw new Exception("ConvexMesh::CookMesh, cooking failed.");
 
 		PxDefaultMemoryInputData input(stream.getData(), stream.getSize());
 
-		return getPhysics()->createConvexMesh(input);
+		return PhysicsEngine::getPhysics()->createConvexMesh(input);
 	}
 };
 
@@ -106,12 +104,12 @@ public:
 	{
 		PxDefaultMemoryOutputStream stream;
 
-		if (!getCooking()->cookTriangleMesh(mesh_desc, stream))
+		if (!PhysicsEngine::getCooking()->cookTriangleMesh(mesh_desc, stream))
 			throw new Exception("TriangleMesh::CookMesh, cooking failed.");
 
 		PxDefaultMemoryInputData input(stream.getData(), stream.getSize());
 
-		return getPhysics()->createTriangleMesh(input);
+		return PhysicsEngine::getPhysics()->createTriangleMesh(input);
 	}
 };
 

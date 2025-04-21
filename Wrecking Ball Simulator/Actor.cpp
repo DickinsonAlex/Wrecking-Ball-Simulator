@@ -1,5 +1,5 @@
 #include "Actor.h"
-#include "GameManager.h"
+#include "PhysicsEngine.h"
 #include "UserData.h"
 
 // Actor constructor
@@ -177,7 +177,7 @@ void Actor::setRotation(const PxQuat& rotation)
 // From PhysX Tutorials
 DynamicActor::DynamicActor(const PxTransform& pose) : Actor()
 {
-	actor = (PxRigidActor*)GameManager::getPhysics()->createRigidDynamic(pose);
+	actor = (PxRigidActor*)PhysicsEngine::getPhysics()->createRigidDynamic(pose);
 	setName("");
 }
 
@@ -191,9 +191,9 @@ DynamicActor::~DynamicActor()
 // From PhysX Tutorials
 void DynamicActor::createShape(const PxGeometry& geometry, PxReal density)
 {
-	PxShape* shape = ((PxRigidDynamic*)actor)->createShape(geometry, *GameManager::getMaterial());
+	PxShape* shape = ((PxRigidDynamic*)actor)->createShape(geometry, *PhysicsEngine::getMaterial());
 	PxRigidBodyExt::updateMassAndInertia(*(PxRigidDynamic*)actor, density);
-	colours.push_back(GameManager::DefaultColour);
+	colours.push_back(PhysicsEngine::DefaultColour);
 	//pass the color pointers to the renderer
 	shape->userData = new UserData();
 	for (unsigned int i = 0; i < colours.size(); i++)
@@ -209,7 +209,7 @@ void DynamicActor::setKinematic(bool value, PxU32 index)
 // From PhysX Tutorials
 StaticActor::StaticActor(const PxTransform& pose)
 {
-	actor = (PxRigidActor*)GameManager::getPhysics()->createRigidStatic(pose);
+	actor = (PxRigidActor*)PhysicsEngine::getPhysics()->createRigidStatic(pose);
 	setName("");
 }
 
@@ -223,8 +223,8 @@ StaticActor::~StaticActor()
 // From PhysX Tutorials
 void StaticActor::createShape(const PxGeometry& geometry, PxReal density)
 {
-	PxShape* shape = ((PxRigidStatic*)actor)->createShape(geometry, *GameManager::getMaterial());
-	colours.push_back(GameManager::DefaultColour);
+	PxShape* shape = ((PxRigidStatic*)actor)->createShape(geometry, *PhysicsEngine::getMaterial());
+	colours.push_back(PhysicsEngine::DefaultColour);
 	//pass the color pointers to the renderer
 	shape->userData = new UserData();
 	for (unsigned int i = 0; i < colours.size(); i++)

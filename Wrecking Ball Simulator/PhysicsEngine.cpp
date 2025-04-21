@@ -1,4 +1,4 @@
-#include "GameManager.h"
+#include "PhysicsEngine.h"
 #include "Exception.h"
 #include "PxPhysicsAPI.h"
 #include <GL/glut.h>
@@ -11,7 +11,7 @@ using namespace std::this_thread;
 using namespace physx;
 using namespace chrono;
 
-namespace GameManager {
+namespace PhysicsEngine {
     Scene* scene = nullptr;
     InputManager* inputManager = nullptr;
     Actor* player = nullptr;
@@ -147,11 +147,11 @@ namespace GameManager {
 
         PxDefaultMemoryOutputStream buf;
         PxConvexMeshCookingResult::Enum result;
-        if (!GameManager::getCooking()->cookConvexMesh(convexDesc, buf, &result))
+        if (!PhysicsEngine::getCooking()->cookConvexMesh(convexDesc, buf, &result))
             return PxConvexMeshGeometry();
 
         PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
-        PxConvexMesh* convexMesh = GameManager::getPhysics()->createConvexMesh(input);
+        PxConvexMesh* convexMesh = PhysicsEngine::getPhysics()->createConvexMesh(input);
 
         return PxConvexMeshGeometry(convexMesh);
     }

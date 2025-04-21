@@ -1,4 +1,4 @@
-#include "GameManager.h"  
+#include "PhysicsEngine.h"  
 
 #include <iostream>  
 
@@ -9,7 +9,7 @@ int main()
    try  
    {  
        // Initialize the game manager  
-       GameManager::Init("Wrecking Simulation", 1280, 720);
+       PhysicsEngine::Init("Wrecking Simulation", 1280, 720);
    }  
    catch (const exception& e)  
    {  
@@ -17,6 +17,6 @@ int main()
        return 0;  
    }  
 
-   GameManager::Start();
+   PhysicsEngine::Start();
    return 0;  
 }
