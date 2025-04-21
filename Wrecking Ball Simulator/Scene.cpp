@@ -2,7 +2,6 @@
 #include "PhysicsEngine.h"
 #include "Exception.h"
 #include "UserData.h"
-#include "Primatives.h"
 
 #include <GL/glut.h>
 #include <PxPhysicsAPI.h>
@@ -127,17 +126,3 @@ void Scene::setMousePosition(PxVec2 mousePosition)
     // Currently will do nothing with the mouse position, will later change the camera to orbit the actor in third person and use this function  
     return;  
 }
-
-void Scene::spawnFeatures()  
-{  
-    // Implementation for spawning features in the scene
-    plane = new Plane(PxVec3(.0f, 1.0f, .0f));
-    plane->setColour(PxVec3(194.f / 255.f, 178.f / 255.f, 128.f / 255.f));
-    addActor(plane);
-}  
-
-void Scene::updateFeatures(float deltaTime, InputManager* inputManager)  
-{  
-    // Implementation for updating features in the scene
-	return;
-}  

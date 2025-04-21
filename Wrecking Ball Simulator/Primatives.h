@@ -3,9 +3,6 @@
 #include "PhysicsEngine.h"
 #include "Exception.h"
 
-#ifndef PRIMATIVES_H
-#define PRIMATIVES_H
-
 // From PhysX Tutorials
 class Plane : public StaticActor
 {
@@ -112,5 +109,3 @@ public:
 		return PhysicsEngine::getPhysics()->createTriangleMesh(input);
 	}
 };
-
-#endif // !PRIMATIVES_H

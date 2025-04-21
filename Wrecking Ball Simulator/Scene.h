@@ -2,7 +2,6 @@
 #include <iostream> // Include iostream for console output
 #include "Camera.h" // Include Camera class
 #include "Actor.h" // Include Actor class
-#include "Primatives.h" // Include Primatives class
 #include "InputManager.h" // Include InputManager class
 #include <PxPhysicsAPI.h> // Include PhysX API for PxRigidActor
 
@@ -20,9 +19,9 @@ protected:
 	InputManager* inputManager; // Ensure inputManager is declared
 	vector<Actor*> actors; // Ensure actors vector is declared
 
-	// Spawn features in the scene
-	Plane* plane;
-
+	// Virtual Functions for spawning and updating features
+	virtual void spawnFeatures() = 0; // Pure virtual function for spawning features
+	virtual void updateFeatures(float deltaTime, InputManager* inputManager) = 0; // Pure virtual function for updating features
 public:  
 	void Init(Camera* cam, InputManager* iM); // Initialize the scene  
 	void Update(float deltaTime); // Update the scene  
@@ -39,8 +38,6 @@ public:
 	
 	void KeyDown(unsigned char key); // Handle key down events  
 	void setMousePosition(PxVec2); // Set mouse position  
-	void spawnFeatures(); // Spawn features in the scene
-	void updateFeatures(float deltaTime, InputManager* inputManager); // Update features in the scene
 };
 
 #endif // SCENE_H

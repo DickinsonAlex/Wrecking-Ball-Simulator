@@ -54,7 +54,7 @@ namespace PhysicsEngine {
         atexit(exitCallback);
         mouseMotionCallback(width / 2, height / 2);
 
-        scene = new Scene();
+        scene = new Level();
         scene->Init(camera, inputManager);
         scene->setCamera(camera);
 
