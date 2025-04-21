@@ -1,14 +1,40 @@
 #include "Scene.h"
 #include "Camera.h"
+#include "GameManager.h"
+#include "InputManager.h"
 #include "Actor.h"
+#include "Exception.h"
 #include <PxPhysicsAPI.h>
+#include "Primatives.h"
 
 using namespace std; 
 
-void Scene::Init()  
+void Scene::Init(Camera* cam, InputManager* iM)
 {  
-    camera = nullptr;  
-    actors.clear();  
+    camera = cam;
+	inputManager = iM;
+
+    PxSceneDesc sceneDesc(GameManager::getPhysics()->getTolerancesScale());
+    sceneDesc.flags |= PxSceneFlag::eENABLE_ACTIVE_ACTORS;
+
+    if (!sceneDesc.cpuDispatcher)
+    {
+        PxDefaultCpuDispatcher* mCpuDispatcher = PxDefaultCpuDispatcherCreate(6);
+        sceneDesc.cpuDispatcher = mCpuDispatcher;
+    }
+
+    sceneDesc.filterShader = PxDefaultSimulationFilterShader;
+
+    pxScene = GameManager::getPhysics()->createScene(sceneDesc);
+
+    if (!pxScene)
+        throw new Exception("Could not Initialise Scene.");
+
+    pxScene->setGravity(PxVec3(0.f, -9.81f, 0.f));
+
+    spawnFeatures();
+
+    paused = false;
 }  
 
 void Scene::Update(float deltaTime)  
@@ -17,14 +43,9 @@ void Scene::Update(float deltaTime)
     {  
         camera->update(deltaTime);  
     }  
-
-    for (Actor* actor : actors)  
-    {  
-        if (actor)  
-        {  
-            // Add actor-specific update logic here if needed  
-        }  
-    }  
+    updateFeatures(deltaTime, inputManager);
+    pxScene->simulate(deltaTime);
+    pxScene->fetchResults(true);
 }  
 
 Camera* Scene::getCamera()  
@@ -106,3 +127,17 @@ void Scene::setMousePosition(PxVec2 mousePosition)
     // Currently will do nothing with the mouse position, will later change the camera to orbit the actor in third person and use this function  
     return;  
 }
+
+void Scene::spawnFeatures()  
+{  
+    // Implementation for spawning features in the scene
+    plane = new Plane(PxVec3(.0f, 1.0f, .0f));
+    plane->setColour(PxVec3(194.f / 255.f, 178.f / 255.f, 128.f / 255.f));
+    addActor(plane);
+}  
+
+void Scene::updateFeatures(float deltaTime, InputManager* inputManager)  
+{  
+    // Implementation for updating features in the scene
+	return;
+}  

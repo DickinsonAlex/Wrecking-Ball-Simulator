@@ -6,8 +6,8 @@
 #include <chrono>
 #include <vector>
 #include <thread>
-using namespace std::this_thread;
 
+using namespace std::this_thread;
 using namespace physx;
 using namespace chrono;
 
@@ -36,9 +36,6 @@ namespace GameManager {
         PxInit();
         Renderer::Init(title, width, height);
 
-        scene = new Scene();
-        scene->Init();
-
         player = new Actor();
         player->setName("Player");
         player->setPosition(PxVec3(0, 0, 0));
@@ -46,10 +43,6 @@ namespace GameManager {
 		scene->addActor(player);
 
         camera = new Camera(player);
-        scene->setCamera(camera);
-
-        glutDisplayFunc(RenderScene);
-        glutReshapeFunc(windowReshapeCallback);
 
         // Input
         inputManager = new InputManager();
@@ -60,6 +53,13 @@ namespace GameManager {
         glutPassiveMotionFunc(mouseMotionCallback);
         atexit(exitCallback);
         mouseMotionCallback(width / 2, height / 2);
+
+        scene = new Scene();
+        scene->Init(camera, inputManager);
+        scene->setCamera(camera);
+
+        glutDisplayFunc(RenderScene);
+        glutReshapeFunc(windowReshapeCallback);
     }
 
     void Update() {
@@ -68,9 +68,9 @@ namespace GameManager {
         }
     }
 
-    PxPhysics* GetPhysics() { return physics; }
-    PxCooking* GetCooking() { return cooking; }
-	Scene* GetScene() { return scene; }
+    PxPhysics* getPhysics() { return physics; }
+    PxCooking* getCooking() { return cooking; }
+	Scene* getScene() { return scene; }
 
 	// From PhysX Tutorials
     void PxInit() {
@@ -230,19 +230,4 @@ namespace GameManager {
         delete camera;
         PxShutdown();
     }
-
-    PxPhysics* getPhysics()
-    {
-        return physics;
-    }
-
-    PxCooking* getCooking()
-    {
-        return cooking;
-    }
-
-	Scene* getScene()
-	{
-		return scene;
-	}
 }
