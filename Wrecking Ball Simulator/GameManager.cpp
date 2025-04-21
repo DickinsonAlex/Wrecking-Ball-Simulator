@@ -26,6 +26,7 @@ namespace GameManager {
     PxCooking* cooking = 0;
     PxReal deltaTime = 1.f / 60.f;
 	PxReal Uptime = 0.f;
+    PxVec3 DefaultColour = PxVec3(0.5f, 0.5f, 0.5f);
 
     void Start() {
         glutMainLoop();
@@ -229,4 +230,19 @@ namespace GameManager {
         delete camera;
         PxShutdown();
     }
+
+    PxPhysics* getPhysics()
+    {
+        return physics;
+    }
+
+    PxCooking* getCooking()
+    {
+        return cooking;
+    }
+
+	Scene* getScene()
+	{
+		return scene;
+	}
 }

@@ -288,7 +288,7 @@ namespace Renderer
 		glDisableClientState(GL_VERTEX_ARRAY);
 	}
 
-	void Render(PxActor** actors, const PxU32 numActors)
+	void Render(const physx::PxActor** actors, const physx::PxU32 numActors)
 	{
 		PxVec3 shadowColour = defaultColour * .9f;
 

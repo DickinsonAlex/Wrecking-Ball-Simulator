@@ -35,7 +35,7 @@ namespace GameManager {
     void exitCallback();
 
 	// PhysX Stuff
-	PxVec3 DefaultColour = PxVec3(0.5f, 0.5f, 0.5f);
+	extern PxVec3 DefaultColour;
     PxMaterial* createMaterial(PxReal staticFriction = .0f, PxReal dynamicFriction = .0f, PxReal coefficientRestitution = .0f);
     PxConvexMeshGeometry CreateConvexMeshGeometry(vector<PxVec3>& verts, float x = 0.f, float y = 0.f, float z = 0.f, PxVec3 rotation = PxVec3(0.f, 0.f, 0.f));
 }

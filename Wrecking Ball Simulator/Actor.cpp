@@ -2,6 +2,24 @@
 #include "GameManager.h"
 #include "UserData.h"
 
+// Actor constructor
+Actor::Actor()
+{
+	// Initialize the actor with default values
+	actor = nullptr;
+	id = 0;
+	name = "";
+	colours.clear();
+}
+
+// Actor destructor
+Actor::~Actor()
+{
+	// Clean up associated user data
+	for (unsigned int i = 0; i < colours.size(); i++)
+		delete (UserData*)getShape(i)->userData;
+}
+
 // From PhysX Tutorials
 void Actor::setColour(PxVec3 colour, PxU32 shapeIndex)
 {
@@ -10,6 +28,11 @@ void Actor::setColour(PxVec3 colour, PxU32 shapeIndex)
 			colours[i] = colour;
 	else if (shapeIndex < colours.size())
 		colours[shapeIndex] = colour;
+}
+
+void Actor::setId(int id)
+{
+	this->id = id;
 }
 
 // From PhysX Tutorials
@@ -120,6 +143,35 @@ void Actor::detachAllShapes()
 	}
 
 	colours.clear();
+}
+
+// Implement getPosition()
+PxVec3 Actor::getPosition() const
+{
+    return ((PxRigidActor*)actor)->getGlobalPose().p;
+}
+
+// Implement setPosition()
+void Actor::setPosition(const PxVec3& position)
+{
+    PxTransform transform = ((PxRigidActor*)actor)->getGlobalPose();
+    transform.p = position;
+    ((PxRigidActor*)actor)->setGlobalPose(transform);
+}
+
+// Implement getOrientation()
+PxVec3 Actor::getOrientation() const
+{
+    PxQuat orientation = ((PxRigidActor*)actor)->getGlobalPose().q;
+    return orientation.getBasisVector0(); // Example: return one of the basis vectors
+}
+
+// Implement setRotation()
+void Actor::setRotation(const PxQuat& rotation)
+{
+    PxTransform transform = ((PxRigidActor*)actor)->getGlobalPose();
+    transform.q = rotation;
+    ((PxRigidActor*)actor)->setGlobalPose(transform);
 }
 
 // From PhysX Tutorials
