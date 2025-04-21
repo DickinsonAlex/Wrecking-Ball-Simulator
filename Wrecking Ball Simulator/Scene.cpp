@@ -1,75 +1,108 @@
 #include "Scene.h"
+#include "Camera.h"
+#include "Actor.h"
+#include <PxPhysicsAPI.h>
+
+using namespace std; 
 
 void Scene::Init()  
 {  
-   // Initialize camera and actor pointers to nullptr  
-   camera = nullptr;  
-   actor = nullptr;  
+    camera = nullptr;  
+    actors.clear();  
 }  
 
 void Scene::Update(float deltaTime)  
 {  
-   // Update the camera if it exists  
-   if (camera)  
-   {  
-       camera->update(deltaTime);  
-   }  
+    if (camera)  
+    {  
+        camera->update(deltaTime);  
+    }  
 
-   // Additional scene update logic can be added here  
+    for (Actor* actor : actors)  
+    {  
+        if (actor)  
+        {  
+            // Add actor-specific update logic here if needed  
+        }  
+    }  
 }  
 
-Camera* Scene::getCamera() const  
+Camera* Scene::getCamera()  
 {  
-   return camera;  
+    return camera;  
 }  
 
-Actor* Scene::getActor() const  
+vector<Actor*> Scene::getActors()  
 {  
-   return actor;  
+    return actors;  
 }  
 
-void Scene::setCamera(Camera* camera)  
+vector<PxActor*> Scene::getPxActors()  
 {  
-   this->camera = camera;  
+    std::vector<PxActor*> pxActors;  
+    for (Actor* actor : actors)  
+    {  
+        if (actor)  
+        {  
+            PxActor* pxActor = actor->getPxActor();  
+            if (pxActor)  
+            {  
+                pxActors.push_back(pxActor);  
+            }  
+        }  
+    }  
+    return pxActors;  
 }  
 
-void Scene::setActor(Actor* actor)  
+void Scene::setCamera(Camera* cam)  
 {  
-   this->actor = actor;  
+    camera = cam;  
+}  
+
+void Scene::addActor(Actor* actor)  
+{  
+    if (actor)  
+    {  
+        actors.push_back(actor);  
+    }  
+}  
+
+void Scene::removeActor(Actor* actor)  
+{  
+    actors.erase(std::remove(actors.begin(), actors.end(), actor), actors.end());  
 }  
 
 void Scene::KeyDown(unsigned char key)  
 {  
-   // Handle key down events  
-   // Example: Move the actor or camera based on key input  
-   if (actor)  
-   {  
-       PxVec3 position = actor->getPosition();  
+    if (!actors.empty())  
+    {  
+        Actor* actor = actors[0];  
+        PxVec3 position = actor->getPosition();  
 
-       switch (key)  
-       {  
-       case 'w':  
-           position.y += 1.0f; // Move up  
-           break;  
-       case 's':  
-           position.y -= 1.0f; // Move down  
-           break;  
-       case 'a':  
-           position.x -= 1.0f; // Move left  
-           break;  
-       case 'd':  
-           position.x += 1.0f; // Move right  
-           break;  
-       default:  
-           break;  
-       }  
+        switch (key)  
+        {  
+        case 'w':  
+            position.y += 1.0f;  
+            break;  
+        case 's':  
+            position.y -= 1.0f;  
+            break;  
+        case 'a':  
+            position.x -= 1.0f;  
+            break;  
+        case 'd':  
+            position.x += 1.0f;  
+            break;  
+        default:  
+            break;  
+        }  
 
-       actor->setPosition(position);  
-   }  
+        actor->setPosition(position);  
+    }  
 }  
 
 void Scene::setMousePosition(PxVec2 mousePosition)  
 {  
-	// Currently will do nothing with the mouse position, will later change the camera to orbit the actor in third person and use this function
-    return;
+    // Currently will do nothing with the mouse position, will later change the camera to orbit the actor in third person and use this function  
+    return;  
 }

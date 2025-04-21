@@ -11,8 +11,13 @@ InputManager::~InputManager() {}
 static std::unordered_map<int, bool> keyStates;
 static PxVec2 mousePosition(0.0f, 0.0f);
 
+static int width = 0;
+static int height = 0;
+
 // Initialize the input manager
-void InputManager::Init() {
+void InputManager::Init(int x, int y) {
+	width = x;
+	height = y;
     keyStates.clear();
     mousePosition = PxVec2(0.0f, 0.0f);
 }
@@ -20,6 +25,13 @@ void InputManager::Init() {
 // Update the input manager (placeholder for future logic)
 void InputManager::Update() {
     // Currently no specific update logic
+}
+
+// Window reshape
+void InputManager::WindowReshape(int x, int y) {
+	// Update the viewport and projection matrix if needed
+	width = x;
+	height = y;
 }
 
 // Check if a key is pressed

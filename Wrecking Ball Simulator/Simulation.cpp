@@ -18,7 +18,5 @@ int main()
    }  
 
    GameManager::Start();
-
-   //delete gameManager; // cleanup to avoid memory leak  
    return 0;  
 }

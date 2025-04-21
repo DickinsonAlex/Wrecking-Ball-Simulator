@@ -20,7 +20,7 @@ public:
 
 	// Getters
 	PxVec3 getPosition() const;
-	PxQuat getRotation() const;
+	PxVec3 getOrientation() const;
 	Actor* getTargetActor() { return targetActor; };
 	
 	// Setters
@@ -30,7 +30,7 @@ public:
 	void update(float deltaTime);
 private:
 	PxVec3 position; // Camera position
-	PxQuat rotation; // Camera rotation
+	PxVec3 orientation; // Camera rotation
 };
 
 #endif // CAMERA_H

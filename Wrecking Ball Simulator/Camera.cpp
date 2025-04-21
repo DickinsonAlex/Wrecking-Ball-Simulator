@@ -5,7 +5,7 @@ Camera::Camera(Actor* target)
 {
 	targetActor = target; // Initialize target actor
 	position = PxVec3(0, 0, 0); // Default camera position
-	rotation = PxQuat(0, 0, 0, 1); // Default camera rotation
+	orientation = PxVec3(0, 0, 0); // Default camera orientation
 }
 
 Camera::~Camera()
@@ -17,9 +17,9 @@ PxVec3 Camera::getPosition() const
     return position;
 }
 
-PxQuat Camera::getRotation() const
+PxVec3 Camera::getOrientation() const
 {
-    return rotation;
+    return orientation;
 }
 
 void Camera::setTargetActor(Actor* actor)
@@ -33,6 +33,6 @@ void Camera::update(float deltaTime)
     {
         // Update camera position and rotation based on the target actor
         position = targetActor->getPosition();
-        rotation = targetActor->getRotation();
+        orientation = targetActor->getOrientation();
     }
 }

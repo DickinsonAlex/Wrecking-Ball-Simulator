@@ -251,15 +251,6 @@ namespace Renderer
 		glEnable(GL_LIGHT0);
 
 		InitWindow(title.c_str(), width, height);
-
-		 // Debug log to confirm glutMainLoop is reached
-		std::cout << "Starting GLUT main loop..." << std::endl;
-
-		// Ensure glutMainLoop is called
-		glutMainLoop();
-
-		// Add a fallback log in case glutMainLoop exits unexpectedly
-		std::cerr << "Error: glutMainLoop exited unexpectedly!" << std::endl;
 	}
 
 	// From PhysX Tutorials
@@ -505,12 +496,12 @@ namespace Renderer
 		// Set display callback
 		glutDisplayFunc([]() {
 			std::cout << "Display callback triggered." << std::endl;
-			Finish();
+			Shutdown();
 		});
 	}
 
 	// From PhysX Tutorials
-	void Finish()
+	void Shutdown()
 	{
 		glutSwapBuffers();
 	}
@@ -520,32 +511,5 @@ namespace Renderer
 	{
 		std::cout << "Shutting down Renderer..." << std::endl;
 		// Perform any necessary cleanup here
-	}
-
-	// Add RenderScene function
-	void RenderScene(Actor** actors)
-	{
-		std::cout << "Rendering scene..." << std::endl;
-
-		for (int i = 0; actors[i] != nullptr; i++)
-		{
-			Actor* actor = actors[i];
-			PxRigidActor* pxActor = actor->getPxActor();
-
-			if (pxActor)
-			{
-				PxTransform pose = pxActor->getGlobalPose();
-				PxMat44 shapePose(pose);
-
-				glPushMatrix();
-				glMultMatrixf((float*)&shapePose);
-
-				// Render actor geometry (assuming a default color for now)
-				glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-				// Add rendering logic for actor geometry here
-
-				glPopMatrix();
-			}
-		}
 	}
 }

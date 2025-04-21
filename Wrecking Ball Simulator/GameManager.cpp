@@ -2,8 +2,11 @@
 #include "Exception.h"
 #include "PxPhysicsAPI.h"
 #include <GL/glut.h>
+#include <iostream>
 #include <chrono>
 #include <vector>
+#include <thread>
+using namespace std::this_thread;
 
 using namespace physx;
 using namespace chrono;
@@ -14,6 +17,7 @@ namespace GameManager {
     Actor* player = nullptr;
     Camera* camera = nullptr;
 
+	// PhysX variables
     PxDefaultErrorCallback defaultErrorCallback;
     PxDefaultAllocator defaultAllocator;
     PxFoundation* foundation = 0;
@@ -21,6 +25,7 @@ namespace GameManager {
     PxPhysics* physics = 0;
     PxCooking* cooking = 0;
     PxReal deltaTime = 1.f / 60.f;
+	PxReal Uptime = 0.f;
 
     void Start() {
         glutMainLoop();
@@ -37,19 +42,21 @@ namespace GameManager {
         player->setName("Player");
         player->setPosition(PxVec3(0, 0, 0));
         player->setRotation(PxQuat(PxIdentity));
-        scene->setActor(player);
+		scene->addActor(player);
 
         camera = new Camera(player);
         scene->setCamera(camera);
 
-        inputManager = new InputManager();
+        glutDisplayFunc(RenderScene);
+        glutReshapeFunc(windowReshapeCallback);
 
+        // Input
+        inputManager = new InputManager();
         glutKeyboardFunc(KeyPress);
         glutKeyboardUpFunc(KeyRelease);
         glutMouseFunc(mouseCallback);
         glutMotionFunc(mouseMotionCallback);
         glutPassiveMotionFunc(mouseMotionCallback);
-
         atexit(exitCallback);
         mouseMotionCallback(width / 2, height / 2);
     }
@@ -59,6 +66,10 @@ namespace GameManager {
             scene->Update(deltaTime);
         }
     }
+
+    PxPhysics* GetPhysics() { return physics; }
+    PxCooking* GetCooking() { return cooking; }
+	Scene* GetScene() { return scene; }
 
 	// From PhysX Tutorials
     void PxInit() {
@@ -87,7 +98,7 @@ namespace GameManager {
                 throw new Exception("Could not initialise the cooking library.");
         }
 
-        CreateMaterial(0.5f, 0.5f, 0.6f);
+        createMaterial(0.5f, 0.5f, 0.6f);
     }
 
 	// From PhysX Tutorials
@@ -103,7 +114,7 @@ namespace GameManager {
     }
 
 	// From PhysX Tutorials
-    PxMaterial* GetMaterial(PxU32 index) {
+    PxMaterial* getMaterial(PxU32 index) {
         std::vector<PxMaterial*> materials(physics->getNbMaterials());
         if (index < physics->getMaterials((PxMaterial**)&materials.front(), (PxU32)materials.size()))
             return materials[index];
@@ -111,8 +122,41 @@ namespace GameManager {
             return nullptr;
     }
 
+    PxConvexMeshGeometry CreateConvexMeshGeometry(vector<PxVec3>& verts, float x, float y, float z, PxVec3 rotation)
+    {
+        vector<PxVec3> newVerts(verts);
+
+        // Translate the verts in accordance to the rotation (euler angles)
+        for (int i = 0; i < newVerts.size(); i++)
+        {
+            PxVec3 vert = newVerts[i];
+            newVerts[i].x = vert.x * cos(rotation.y) - vert.z * sin(rotation.y);
+            newVerts[i].z = vert.x * sin(rotation.y) + vert.z * cos(rotation.y);
+        }
+
+        // Translate the newVerts to the correct position
+        for (int i = 0; i < newVerts.size(); i++)
+            newVerts[i] = newVerts[i] + PxVec3(x, y, z);
+
+        PxConvexMeshDesc convexDesc;
+        convexDesc.points.count = (PxU32)newVerts.size();
+        convexDesc.points.stride = sizeof(PxVec3);
+        convexDesc.points.data = newVerts.data();
+        convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
+
+        PxDefaultMemoryOutputStream buf;
+        PxConvexMeshCookingResult::Enum result;
+        if (!GameManager::getCooking()->cookConvexMesh(convexDesc, buf, &result))
+            return PxConvexMeshGeometry();
+
+        PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
+        PxConvexMesh* convexMesh = GameManager::getPhysics()->createConvexMesh(input);
+
+        return PxConvexMeshGeometry(convexMesh);
+    }
+
 	// From PhysX Tutorials
-    PxMaterial* CreateMaterial(PxReal staticFriction, PxReal dynamicFriction, PxReal coefficientRestitution) {
+    PxMaterial* createMaterial(PxReal staticFriction, PxReal dynamicFriction, PxReal coefficientRestitution) {
         return physics->createMaterial(staticFriction, dynamicFriction, coefficientRestitution);
     }
 
@@ -121,6 +165,42 @@ namespace GameManager {
             delete scene;
         }
         scene = newScene;
+    }
+
+    void RenderScene()
+    {
+        Uptime += deltaTime;
+        scene->Update(deltaTime);
+
+        auto startPhysics = chrono::high_resolution_clock::now();
+        auto endPhysics = high_resolution_clock::now();
+        auto physicsTime = duration_cast<milliseconds>(endPhysics - startPhysics).count();
+        auto startTime = high_resolution_clock::now();
+
+        Renderer::Start(camera->getPosition(), camera->getOrientation());
+
+        vector<PxActor*> actors = scene->getPxActors();
+
+        if (!actors.empty())
+        {
+            Renderer::Render(&actors[0], (PxU32)actors.size());
+        }
+
+        Renderer::Shutdown();
+
+        auto endRender = high_resolution_clock::now();
+        auto renderTime = duration_cast<milliseconds>(endRender - startTime).count();
+
+        printf("Physics: %lldms, Render: %lldms\n", physicsTime, renderTime);
+
+        // sleep to prevent 100% CPU usage
+        sleep_for(deltaTime * 1000ms);
+    }
+
+    void windowReshapeCallback(int width, int height)
+    {
+        inputManager->WindowReshape(width, height);
+        Renderer::ResizeWindow(width, height);
     }
 
     void KeyPress(unsigned char key, int x, int y) {

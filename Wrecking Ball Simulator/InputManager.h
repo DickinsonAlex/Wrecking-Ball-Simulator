@@ -12,7 +12,7 @@ public:
 	InputManager(); // Constructor
 	~InputManager(); // Destructor
 
-	void Init();
+	void Init(int x, int y);
 	void Update();
 
 	// Getters
@@ -20,6 +20,7 @@ public:
 	PxVec2 getMousePosition() const;
 
 	// Setters
+	void WindowReshape(int width, int height); // Update the viewport and projection matrix
 	void setKeyPressed(int key);
 	void setKeyReleased(int key);
 	void setMouse(int button, int state, int x, int y); // Set mouse position
