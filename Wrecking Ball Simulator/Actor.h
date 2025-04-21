@@ -15,7 +15,7 @@ protected:
    int id; // Actor ID  
    PxActor* pxActor; // Pointer to the actor  
    string name; // Actor name  
-   vector<PxVec3> colours; // Shape colors  
+   vector<PxVec3> colours; // Shape Colours  
 
 public:  
    Actor(); // Constructor  
@@ -27,14 +27,14 @@ public:
    const int getId() const { return id; }; // Get the actor ID  
    PxVec3 getPosition() const; // Get the actor position  
    PxVec3 getOrientation() const; // Get the actor rotation  
-   const PxVec3* GetColour(PxU32 shapeIndex); // Get shape color  
+   const PxVec3* GetColour(PxU32 shapeIndex); // Get shape Colour  
 
    // Setters  
    void setName(const string& name); // Set the actor name  
    void setId(int id); // Set the actor ID  
    void setPosition(const PxVec3& position); // Set the actor position  
    void setRotation(const PxQuat& rotation); // Set the actor rotation  
-   void setColour(PxVec3 colour, PxU32 shapeIndex = -1); // Set shape color  
+   void setColour(PxVec3 colour, PxU32 shapeIndex = -1); // Set shape Colour  
    void setMaterial(PxMaterial* material, PxU32 shapeIndex = -1); // Set shape material  
 
    // Shape management  

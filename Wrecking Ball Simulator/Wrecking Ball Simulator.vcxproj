@@ -38,6 +38,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FontData.h" />
     <ClCompile Include="FontRenderer.cpp" />
+    <ClCompile Include="Helpful.h" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="PhysicsEngine.cpp" />
     <ClCompile Include="InputManager.cpp" />

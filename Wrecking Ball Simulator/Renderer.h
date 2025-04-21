@@ -15,7 +15,7 @@ namespace Renderer {
    void End();  
    void ResizeWindow(int width, int height);  
    void RenderText(const std::string& text, int x, int y);  
-   void RenderBuffer(float* pVertList, float* pColorList, int type, int num);  
+   void RenderBuffer(float* pVertList, float* pColourList, int type, int num);  
    void DrawPlane();  
    void DrawSphere(const physx::PxGeometryHolder& geometry);  
    void DrawBox(const physx::PxGeometryHolder& geometry);  

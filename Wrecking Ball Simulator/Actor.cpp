@@ -118,7 +118,7 @@ void Actor::detachShape(PxU32 shapeIndex)
 		// Detach shape from actor
 		((PxRigidActor*)pxActor)->detachShape(*shape, true);
 
-		// Remove color associated with this shape
+		// Remove Colour associated with this shape
 		colours.erase(colours.begin() + shapeIndex);
 	}
 }
@@ -194,10 +194,10 @@ void DynamicActor::createShape(const PxGeometry& geometry, PxReal density)
 	PxShape* shape = ((PxRigidDynamic*)pxActor)->createShape(geometry, *PhysicsEngine::getMaterial());
 	PxRigidBodyExt::updateMassAndInertia(*(PxRigidDynamic*)pxActor, density);
 	colours.push_back(PhysicsEngine::DefaultColour);
-	//pass the color pointers to the renderer
+	//pass the Colour pointers to the renderer
 	shape->userData = new UserData();
 	for (unsigned int i = 0; i < colours.size(); i++)
-		((UserData*)getShape(i)->userData)->colour = &colours[i];
+		((UserData*)getShape(i)->userData)->color = &colours[i];
 }
 
 // From PhysX Tutorials
@@ -225,8 +225,8 @@ void StaticActor::createShape(const PxGeometry& geometry, PxReal density)
 {
 	PxShape* shape = ((PxRigidStatic*)pxActor)->createShape(geometry, *PhysicsEngine::getMaterial());
 	colours.push_back(PhysicsEngine::DefaultColour);
-	//pass the color pointers to the renderer
+	//pass the Colour pointers to the renderer
 	shape->userData = new UserData();
 	for (unsigned int i = 0; i < colours.size(); i++)
-		((UserData*)getShape(i)->userData)->colour = &colours[i];
+		((UserData*)getShape(i)->userData)->color = &colours[i];
 }

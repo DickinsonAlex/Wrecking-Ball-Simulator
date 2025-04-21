@@ -9,11 +9,11 @@ using namespace physx;
 class UserData
 {
 public:
-	PxVec3* colour;
+	PxVec3* color;
 	PxClothMeshDesc* clothMeshDesc;
 
 	UserData(PxVec3* colour = 0, PxClothMeshDesc* clothMeshDesc = 0)
-		: colour(colour), clothMeshDesc(clothMeshDesc) {
+		: color(colour), clothMeshDesc(clothMeshDesc) {
 	}
 };
 

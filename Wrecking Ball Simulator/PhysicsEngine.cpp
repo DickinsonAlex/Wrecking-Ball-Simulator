@@ -198,6 +198,8 @@ namespace PhysicsEngine {
 
         printf("Physics: %lldms, Render: %lldms\n", physicsTime, renderTime);
 
+		Renderer::End();
+
         // sleep to prevent 100% CPU usage
         sleep_for(deltaTime * 1000ms);
     }
