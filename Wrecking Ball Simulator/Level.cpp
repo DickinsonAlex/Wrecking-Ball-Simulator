@@ -1,5 +1,5 @@
 #include "Level.h"
-
+#include <GL/glut.h>
 
 void Level::spawnFeatures()
 {

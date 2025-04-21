@@ -41,6 +41,7 @@
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="PhysicsEngine.cpp" />
     <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="Primatives.cpp" />
     <ClCompile Include="Primatives.h" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Scene.cpp" />

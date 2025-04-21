@@ -1,6 +1,5 @@
 #pragma once
 #include "Actor.h"
-#include "PhysicsEngine.h"
 #include "Exception.h"
 
 // From PhysX Tutorials
@@ -64,17 +63,7 @@ public:
 		createShape(PxConvexMeshGeometry(CookMesh(mesh_desc)), density);
 	}
 
-	PxConvexMesh* CookMesh(const PxConvexMeshDesc& mesh_desc)
-	{
-		PxDefaultMemoryOutputStream stream;
-
-		if (!PhysicsEngine::getCooking()->cookConvexMesh(mesh_desc, stream))
-			throw new Exception("ConvexMesh::CookMesh, cooking failed.");
-
-		PxDefaultMemoryInputData input(stream.getData(), stream.getSize());
-
-		return PhysicsEngine::getPhysics()->createConvexMesh(input);
-	}
+	PxConvexMesh* CookMesh(const PxConvexMeshDesc& mesh_desc);
 };
 
 ///The TriangleMesh class
@@ -97,15 +86,5 @@ public:
 	}
 
 	//mesh cooking (preparation)
-	PxTriangleMesh* CookMesh(const PxTriangleMeshDesc& mesh_desc)
-	{
-		PxDefaultMemoryOutputStream stream;
-
-		if (!PhysicsEngine::getCooking()->cookTriangleMesh(mesh_desc, stream))
-			throw new Exception("TriangleMesh::CookMesh, cooking failed.");
-
-		PxDefaultMemoryInputData input(stream.getData(), stream.getSize());
-
-		return PhysicsEngine::getPhysics()->createTriangleMesh(input);
-	}
+	PxTriangleMesh* CookMesh(const PxTriangleMeshDesc& mesh_desc);
 };

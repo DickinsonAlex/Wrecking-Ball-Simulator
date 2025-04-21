@@ -24,7 +24,7 @@ public:
    // Getters  
    PxActor* getPxActor() { return actor; }; // Get the PxActor pointer  
    string getName(); // Get the actor name  
-   int getId() { return id; }; // Get the actor ID  
+   const int getId() const { return id; }; // Get the actor ID  
    PxVec3 getPosition() const; // Get the actor position  
    PxVec3 getOrientation() const; // Get the actor rotation  
    const PxVec3* GetColour(PxU32 shapeIndex); // Get shape color  
