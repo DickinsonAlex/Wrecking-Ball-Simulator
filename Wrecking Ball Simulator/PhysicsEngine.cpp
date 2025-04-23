@@ -15,7 +15,6 @@ using namespace chrono;
 namespace PhysicsEngine {
     Scene* scene = nullptr;
     InputManager* inputManager = nullptr;
-    Crane* crane = nullptr;
     Camera* camera = nullptr;
 
 	// PhysX variables
@@ -54,14 +53,9 @@ namespace PhysicsEngine {
         scene = new Level();
         scene->Init(camera, inputManager);
 
-		// Create the crane
-		crane = new Crane(PxTransform(PxVec3(-10.f, 10.f, 0.f)), 5.f, 1.f);
-        scene-> addActors(crane->getActors());
-
 		// Initialize the camera
-        camera = new Camera(crane);
+        camera = new Camera(scene->getTarget());
         scene->setCamera(camera);
-		scene->addActors(crane->getActors());
 
 		// Set the scene in the physics engine
         glutDisplayFunc(RenderScene);
@@ -70,12 +64,7 @@ namespace PhysicsEngine {
 
     void Update() {
         if (scene) {
-            scene->Update(deltaTime);
-
-            // Update the crane with input handling
-            if (crane && inputManager) {
-                crane->Update(deltaTime, inputManager, camera);
-            }
+            scene->Update(deltaTime, inputManager, camera);
         }
     }
 
@@ -182,7 +171,7 @@ namespace PhysicsEngine {
     void RenderScene()
     {
         Uptime += deltaTime;
-        scene->Update(deltaTime);
+        scene->Update(deltaTime, inputManager, camera);
 
         auto startPhysics = chrono::high_resolution_clock::now();
         auto endPhysics = high_resolution_clock::now();

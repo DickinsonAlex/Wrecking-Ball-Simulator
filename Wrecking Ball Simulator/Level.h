@@ -19,9 +19,10 @@ private:
 	Crane* crane; // Crane object for the level
 protected:
 	void spawnFeatures(); // Spawn features in the scene
-	void updateFeatures(float deltaTime, InputManager* inputManager); // Update features in the scene
+	void updateFeatures(float deltaTime, InputManager* inputManager, Camera* camera); // Update features in the scene
 public:
 	vector<Actor*> getActors(); // Get all sub-actors in the scene
+	Actor* getTarget() { return crane; } // Get the target actor (crane)
 };
 
 #endif // LEVEL_H

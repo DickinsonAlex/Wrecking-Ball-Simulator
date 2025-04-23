@@ -21,10 +21,10 @@ protected:
 
 	// Virtual Functions for spawning and updating features
 	virtual void spawnFeatures() = 0; // Pure virtual function for spawning features
-	virtual void updateFeatures(float deltaTime, InputManager* inputManager) = 0; // Pure virtual function for updating features
+	virtual void updateFeatures(float deltaTime, InputManager* inputManager, Camera* camera) = 0; // Pure virtual function for updating features
 public:
 	void Init(Camera* cam, InputManager* iM); // Initialize the scene  
-	void Update(float deltaTime); // Update the scene  
+	void Update(float deltaTime, InputManager* inputManager, Camera* camera); // Update the scene
 
 	// Getters  
 	Camera* getCamera(); // Get the camera  
@@ -32,6 +32,7 @@ public:
 	vector<PxActor*> getPxActors(); // Get the list of PxActors
 	PxScene* getScene() { return pxScene; }
 	Actor* getActorFromPxActor(PxActor* actor);
+	virtual Actor* getTarget() = 0;
 
 	// Setters  
 	void setCamera(Camera* camera); // Set the camera  
