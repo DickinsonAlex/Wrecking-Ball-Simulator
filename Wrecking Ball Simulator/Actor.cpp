@@ -160,14 +160,14 @@ void Actor::setPosition(const PxVec3& position)
 }
 
 // Implement getOrientation()
-PxVec3 Actor::getOrientation() const
+PxQuat Actor::getOrientation() const
 {
     PxQuat orientation = ((PxRigidActor*)pxActor)->getGlobalPose().q;
-    return orientation.getBasisVector0(); // Example: return one of the basis vectors
+	return orientation;
 }
 
 // Implement setRotation()
-void Actor::setRotation(const PxQuat& rotation)
+void Actor::setOrientation(const PxQuat& rotation)
 {
     PxTransform transform = ((PxRigidActor*)pxActor)->getGlobalPose();
     transform.q = rotation;

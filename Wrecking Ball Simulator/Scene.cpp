@@ -79,23 +79,22 @@ void Scene::setCamera(Camera* cam)
     camera = cam;  
 }  
 
-void Scene::addActor(Actor* actor)  
-{  
-    if (actor)  
-    {  
-        actors.push_back(actor);  
-    }  
-}  
+void Scene::addActor(Actor* actor)
+{
+    if (actor)
+    {
+        actor->setId(actors.size()); // Set the ID of the actor to its index in the vector
+        actors.push_back(actor);
+        pxScene->addActor(*actor->getPxActor()); // Add the actor to the PhysX scene
+    }
+}
 
 void Scene::addActors(vector<Actor*> actorList)
 {
-	for (Actor* actor : actorList)
-	{
-		if (actor)
-		{
-			actors.push_back(actor);
-		}
-	}
+    for (Actor* actor : actorList)
+    {
+        addActor(actor); // Add each actor to the scene
+    }
 }
 
 void Scene::removeActor(Actor* actor)  

@@ -26,14 +26,14 @@ public:
    string getName(); // Get the actor name  
    const int getId() const { return id; }; // Get the actor ID  
    PxVec3 getPosition() const; // Get the actor position  
-   PxVec3 getOrientation() const; // Get the actor rotation  
+   PxQuat getOrientation() const; // Get the actor orientation  
    const PxVec3* GetColour(PxU32 shapeIndex); // Get shape Colour  
 
    // Setters  
    void setName(const string& name); // Set the actor name  
    void setId(int id); // Set the actor ID  
    void setPosition(const PxVec3& position); // Set the actor position  
-   void setRotation(const PxQuat& rotation); // Set the actor rotation  
+   void setOrientation(const PxQuat& rotation); // Set the actor rotation  
    void setColour(PxVec3 colour, PxU32 shapeIndex = -1); // Set shape Colour  
    void setMaterial(PxMaterial* material, PxU32 shapeIndex = -1); // Set shape material  
 

@@ -123,39 +123,6 @@ namespace PhysicsEngine {
             return nullptr;
     }
 
-    PxConvexMeshGeometry CreateConvexMeshGeometry(vector<PxVec3>& verts, float x, float y, float z, PxVec3 rotation)
-    {
-        vector<PxVec3> newVerts(verts);
-
-        // Translate the verts in accordance to the rotation (euler angles)
-        for (int i = 0; i < newVerts.size(); i++)
-        {
-            PxVec3 vert = newVerts[i];
-            newVerts[i].x = vert.x * cos(rotation.y) - vert.z * sin(rotation.y);
-            newVerts[i].z = vert.x * sin(rotation.y) + vert.z * cos(rotation.y);
-        }
-
-        // Translate the newVerts to the correct position
-        for (int i = 0; i < newVerts.size(); i++)
-            newVerts[i] = newVerts[i] + PxVec3(x, y, z);
-
-        PxConvexMeshDesc convexDesc;
-        convexDesc.points.count = (PxU32)newVerts.size();
-        convexDesc.points.stride = sizeof(PxVec3);
-        convexDesc.points.data = newVerts.data();
-        convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
-
-        PxDefaultMemoryOutputStream buf;
-        PxConvexMeshCookingResult::Enum result;
-        if (!PhysicsEngine::getCooking()->cookConvexMesh(convexDesc, buf, &result))
-            return PxConvexMeshGeometry();
-
-        PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
-        PxConvexMesh* convexMesh = PhysicsEngine::getPhysics()->createConvexMesh(input);
-
-        return PxConvexMeshGeometry(convexMesh);
-    }
-
 	// From PhysX Tutorials
     PxMaterial* createMaterial(PxReal staticFriction, PxReal dynamicFriction, PxReal coefficientRestitution) {
         return physics->createMaterial(staticFriction, dynamicFriction, coefficientRestitution);
