@@ -35,7 +35,7 @@ void InputManager::WindowReshape(int x, int y) {
 }
 
 // Check if a key is pressed
-bool InputManager::isKeyPressed(int key) const {
+bool InputManager::isKeyPressed(unsigned char key) const {
     auto it = keyStates.find(key);
     return it != keyStates.end() && it->second;
 }
@@ -46,12 +46,12 @@ PxVec2 InputManager::getMousePosition() const {
 }
 
 // Set a key as pressed
-void InputManager::setKeyPressed(int key) {
+void InputManager::setKeyPressed(unsigned char key) {
     keyStates[key] = true;
 }
 
 // Set a key as released
-void InputManager::setKeyReleased(int key) {
+void InputManager::setKeyReleased(unsigned char key) {
     keyStates[key] = false;
 }
 

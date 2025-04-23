@@ -10,9 +10,18 @@ void Level::spawnFeatures()
 	ground->setName("Ground");
     addActor(ground);
 
-	// Create the house and add it to the scene
-	structure_1 = new Structure(PxTransform(PxVec3(10.f, 10.f, 80.f)), 3, 4, 4); // Pose, floors, width, depth)
-	addActors(structure_1->getActors());
+	// Create multiple buildings and add it to the scene
+	building_1 = new Structure(PxTransform(PxVec3(10.f, 10.f, 80.f)), 2, 3, 3); // Pose, floors, width, depth)
+	building_2 = new Structure(PxTransform(PxVec3(-10.f, 10.f, 80.f)), 2, 3, 3);
+	building_3 = new Structure(PxTransform(PxVec3(10.f, 10.f, -80.f)), 2, 3, 3);
+	building_4 = new Structure(PxTransform(PxVec3(-10.f, 10.f, -80.f)), 2, 3, 3);
+	building_5 = new Structure(PxTransform(PxVec3(-20.f, 10.f, 35.f)), 2, 3, 3);
+
+	addActors(building_1->getActors());
+	addActors(building_2->getActors());
+	addActors(building_3->getActors());
+	addActors(building_4->getActors());
+	addActors(building_5->getActors());
 
 	printf("Level features spawned successfully.\n");
 }
@@ -28,10 +37,20 @@ vector<Actor*> Level::getActors()
     vector<Actor*> actors;
 
     actors.push_back(ground);
-    //for (Actor* actor : wrecker->GetActors())
-     //   actors.push_back(actor);
-    for (Actor* actor : structure_1->getActors())
+    for (Actor* actor : building_1->getActors())
         actors.push_back(actor);
+
+	for (Actor* actor : building_2->getActors())
+		actors.push_back(actor);
+
+	for (Actor* actor : building_3->getActors())
+		actors.push_back(actor);
+
+	for (Actor* actor : building_4->getActors())
+		actors.push_back(actor);
+
+	for (Actor* actor : building_5->getActors())
+		actors.push_back(actor);
 
     return actors;
 }

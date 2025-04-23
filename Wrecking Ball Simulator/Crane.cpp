@@ -1,280 +1,196 @@
 #include "Crane.h"
 #include "PhysicsEngine.h"
 #include "Structure.h"
+#include "Helpful.h"
 
 #include <PxPhysicsAPI.h>
-#include <vector> // Include for std::vector
+#include <vector>
 
-Crane::Crane(const PxTransform& pose, float baseSize, float chassisHeight, float sectionLength, float height, float length)
-	: baseSize(baseSize), beamThickness(chassisHeight), sectionLength(sectionLength), height(height), length(length)
-{
-	// Create a realistic base with wheels
-	base = new CraneBase(
-		PxTransform(PxVec3(pose.p.x, pose.p.y, pose.p.z), pose.q),
-		baseSize,
-		chassisHeight,
-		sectionLength,
-		height
-	);
+using namespace physx;
 
-	// Add wheels to the base
-    wheels.push_back(new Wheel(PxTransform(PxVec3(pose.p.x - baseSize / 2, pose.p.y, pose.p.z - baseSize / 2), pose.q)));  
-    wheels.push_back(new Wheel(PxTransform(PxVec3(pose.p.x + baseSize / 2, pose.p.y, pose.p.z - baseSize / 2), pose.q)));  
-    wheels.push_back(new Wheel(PxTransform(PxVec3(pose.p.x - baseSize / 2, pose.p.y, pose.p.z + baseSize / 2), pose.q)));  
-    wheels.push_back(new Wheel(PxTransform(PxVec3(pose.p.x + baseSize / 2, pose.p.y, pose.p.z + baseSize / 2), pose.q)));
-
-	// Adjust arm and hook positions to match the realistic crane
-	arm = new CraneArm(
-		PxTransform(PxVec3(pose.p.x, height + pose.p.y, pose.p.z), pose.q),
-		baseSize,
-		chassisHeight,
-		sectionLength,
-		length
-	);
-
-	float hookSize = 1.5f; // Adjust hook size
-	hook = new CraneHook(
-		PxTransform(PxVec3(pose.p.x, height + pose.p.y, pose.p.z), pose.q),
-		baseSize,
-		chassisHeight,
-		length,
-		hookSize
-	);
-
-	float wreckingBallRadius = 1.5f; // Adjust wrecking ball size
-	ball = new WreckingBall(
-		PxTransform(PxVec3(pose.p.x, height + pose.p.y - wreckingBallRadius - (hookSize * 0.6f), pose.p.z), pose.q),
-		wreckingBallRadius,
-		1.f
-	);
-
-	// Replace chain with small box links
-	chain = new Chain((Actor*)hook, PxVec3(0.f, -(hookSize * 0.6f), hook->getMinExtension()), (Actor*)ball, PxVec3(0.f, wreckingBallRadius, 0.f));
+// --- Wheel Implementation ---
+Wheel::Wheel(const PxTransform& pose, float size) : StaticActor(pose), size(size) {
+    createShape(PxBoxGeometry(size/2, size/1, size/1), 0.0f);
+	setColour(Helpful::RGBtoScalar(0.0f, 0.0f, 0.0f)); // Black color
 }
 
-Crane::~Crane()
-{
-	delete base;
-	delete arm;
-	delete hook;
-	delete chain;
-	delete ball;
-	delete wheel;
+Wheel::~Wheel() {}
+
+// --- Wheels Implementation ---  
+Wheels::Wheels(const PxTransform& pose, float size) : StaticActor(pose) {  
+   PxTransform wheelPoses[4] = {  
+       pose * PxTransform(PxVec3(2 * size, 0, 2 * size)),
+       pose * PxTransform(PxVec3(-2 * size, 0, 2 * size)),
+       pose * PxTransform(PxVec3(2 * size, 0, -2 * size)),
+       pose * PxTransform(PxVec3(-2 * size, 0, -2 * size))
+   };  
+
+   for (int i = 0; i < 4; ++i) {  
+       wheels[i] = new Wheel(wheelPoses[i], size/2);  
+       printf("Wheel spawned at position: %f, %f, %f\n", wheelPoses[i].p.x, wheelPoses[i].p.y, wheelPoses[i].p.z);  
+   }  
 }
 
-void Crane::Update(PxReal deltaTime, InputManager* inputManager, Camera* camera)
-{
-	return;
-}
-
-vector<Actor*> Crane::getActors()
-{
-	vector<Actor*> actors;
-	actors.push_back((Actor*)base);
-	actors.push_back((Actor*)arm);
-	actors.push_back((Actor*)hook);
-	actors.push_back((Actor*)ball);
-
-	for (Actor* link : chain->getActors())
-		actors.push_back(link);
-
-	// Add wheels to the list of actors
-	for (Actor* wheel : wheels)
-		actors.push_back((Actor*)wheel);
-
-	return actors;
-}
-
-CraneBase::CraneBase(const PxTransform& pose, float baseSize, float beamThickness, float sectionLength, float height)
-	: StaticActor(pose)
-{
-	vector<PxVec3> baseVertices = {
-		PxVec3(-baseSize / 2, 0.f, -baseSize / 2),
-		PxVec3(-baseSize / 2, 0.f, baseSize / 2),
-		PxVec3(baseSize / 2, 0.f, baseSize / 2),
-		PxVec3(baseSize / 2, 0.f, -baseSize / 2),
-
-		PxVec3(-baseSize / 2, beamThickness, -baseSize / 2),
-		PxVec3(-baseSize / 2, beamThickness, baseSize / 2),
-		PxVec3(baseSize / 2, beamThickness, baseSize / 2),
-		PxVec3(baseSize / 2, beamThickness, -baseSize / 2)
-	};
-
-	createShape(PhysicsEngine::CreateConvexMeshGeometry(baseVertices), 1.0f);
-
-	// Set the color to yellow
-	setColour(PxVec3(1.f, 1.f, 0.f));
-}
-
-// Remove beam logic from CraneArm
-CraneArm::CraneArm(const PxTransform& pose, float baseSize, float beamThickness, float sectionLength, float length)
-	: StaticActor(pose)
-{
-	vector<PxVec3> armVertices = {
-		PxVec3(-beamThickness / 2, 0.f, -baseSize / 2),
-		PxVec3(-beamThickness / 2, 0.f, baseSize / 2),
-		PxVec3(beamThickness / 2, 0.f, baseSize / 2),
-		PxVec3(beamThickness / 2, 0.f, -baseSize / 2),
-		PxVec3(-beamThickness / 2, beamThickness, -baseSize / 2),
-		PxVec3(-beamThickness / 2, beamThickness, baseSize / 2),
-		PxVec3(beamThickness / 2, beamThickness, baseSize / 2),
-		PxVec3(beamThickness / 2, beamThickness, -baseSize / 2),
-		PxVec3(-beamThickness / 2, beamThickness, -baseSize / 2),
-		PxVec3(-beamThickness / 2, beamThickness, baseSize / 2),
-		PxVec3(beamThickness / 2, beamThickness, baseSize / 2),
-		PxVec3(beamThickness / 2, beamThickness, -baseSize / 2),
-		PxVec3(-beamThickness / 2, beamThickness, -baseSize / 2),
-		PxVec3(-beamThickness / 2, beamThickness, baseSize / 2),
-		PxVec3(beamThickness / 2, beamThickness, baseSize / 2),
-		PxVec3(beamThickness / 2, beamThickness, -baseSize / 2),
-		PxVec3(-beamThickness / 2, beamThickness, -baseSize / 2),
-	};
-
-	createShape(PhysicsEngine::CreateConvexMeshGeometry(armVertices), 1.0f);
-
-	// Set the color to green for debugging
-	setColour(PxVec3(0.f, 1.f, 0.f));
-}
-
-// Remove beam logic from CraneHook
-CraneHook::CraneHook(const PxTransform& pose, float baseSize, float beamThickness, float length, float hookSize)
-	: StaticActor(PxTransform(pose.p + PxVec3(0.f, 0.f, 1.f + baseSize / 2 + hookSize / 2), pose.q))
-{
-	maxExtension = length - 2.f - baseSize / 2 - hookSize;
-	minExtension = 1.f + baseSize / 2 + hookSize / 2;
-
-	createShape(PhysicsEngine::CreateConvexMeshGeometry(vector<PxVec3>(
-		{
-			PxVec3(-hookSize / 2, 0.f, -hookSize / 2),
-			PxVec3(-hookSize / 2, 0.f, hookSize / 2),
-			PxVec3(hookSize / 2, 0.f, hookSize / 2),
-			PxVec3(hookSize / 2, 0.f, -hookSize / 2),
-
-			PxVec3(-hookSize / 2, -hookSize, -hookSize / 2),
-			PxVec3(-hookSize / 2, -hookSize, hookSize / 2),
-			PxVec3(hookSize / 2, -hookSize, hookSize / 2),
-			PxVec3(hookSize / 2, -hookSize, -hookSize / 2)
-		}
-		)), 1.0f);
-
-	// Set the color to orange for debugging
-	setColour(PxVec3(1.f, 0.5f, 0.f));
-}
-
-// Make the grey boxes thinner
-ChainLink::ChainLink(const PxTransform& pose)
-	: DynamicActor(pose)
-{
-	// Reduce the dimensions of the box geometry
-	createShape(PxBoxGeometry(PxVec3(0.3f, 0.3f, 0.3f)), 1.0f); // Thinner box dimensions
-
-	// Set the color to dark gray for debugging
-	setColour(PxVec3(0.3f, 0.3f, 0.3f));
-	setName("ChainLink");
-}
-
-Chain::Chain(Actor* start, PxVec3 startOffset, Actor* end, PxVec3 endOffset)
-{
-	float distance = ((end->getPxActor()->getGlobalPose().p + endOffset) - (start->getPxActor()->getGlobalPose().p + startOffset)).magnitude();
-	this->length = floor(distance / ChainLink::getSize()) * ChainLink::getSize();
-
-	PxTransform startGlobalPose = PxTransform(
-		PxVec3(
-			start->getPxActor()->getGlobalPose().p.x + startOffset.x,
-			start->getPxActor()->getGlobalPose().p.y + startOffset.y,
-			start->getPxActor()->getGlobalPose().p.z + startOffset.z
-		),
-		start->getPxActor()->getGlobalPose().q
-	);
-
-	Actor* previous = start;
-	PxTransform previousOffset = PxTransform(startOffset);
-
-	for (int i = 0; i < floor(distance / ChainLink::getSize()); i++)
-	{
-		ChainLink* link = 
-			new ChainLink(PxTransform(
-				PxVec3(
-					startGlobalPose.p.x,
-					startGlobalPose.p.y - i * ChainLink::getSize(),
-					startGlobalPose.p.z
-				),
-				startGlobalPose.q
-			));
-		links.push_back(link);
-
-		RevoluteJoint* joint = new RevoluteJoint(previous, previousOffset, link, PxTransform(PxVec3(0.f, ChainLink::getSize() / 2, 0.f)));
-		joint->setLimits(-PxPi / 8, PxPi / 8);
-		joint->setDriveVelocity(2.f);
-
-		joints.push_back(joint);
-
-		previous = link;
-		previousOffset = PxTransform(PxVec3(0.f, -ChainLink::getSize() / 2, 0.f));
+std::vector<Actor*> Wheels::getActors() {
+	std::vector<Actor*> wheelActors;
+	for (int i = 0; i < 4; ++i) {
+		wheelActors.push_back(wheels[i]);
 	}
-
-	RevoluteJoint* joint = new RevoluteJoint(previous, previousOffset, end, PxTransform(endOffset));
-	joint->setLimits(-PxPi / 8, PxPi / 8);
-	joint->setDriveVelocity(2.f);
+	return wheelActors;
 }
 
-Chain::~Chain()
-{
-	for (Actor* link : links)
-		delete link;
-	for (RevoluteJoint* joint : joints)
-		delete joint;
+Wheels::~Wheels() {}
+
+// --- CraneBase Implementation ---
+CraneBase::CraneBase(const PxTransform& pose, float size) : StaticActor(pose), size(size) {
+	PxTransform basePose = pose * PxTransform(PxVec3(0, size / 2, 0));
+    createShape(PxBoxGeometry(size*2.2, size / 3, size*2.2), 0.0f);
+    setColour(Helpful::RGBtoScalar(100.0f, 100.0f, 100.0f)); // Grey color
+    setPosition(basePose.p);
 }
 
-vector<Actor*> Chain::getActors()
-{
-	vector<Actor*> actors;
-	for (Actor* link : links)
-		actors.push_back(link);
+CraneBase::~CraneBase() {}
 
-	return actors;
+// --- CraneCore Implementation ---
+CraneCore::CraneCore(const PxTransform& pose, float size) : StaticActor(pose), size(size) {
+    PxTransform corePose = pose * PxTransform(PxVec3(0, size*1.8f, 0));
+    createShape(PxBoxGeometry(size * 2.2, size, size * 2.2), 0.0f);
+	setColour(Helpful::RGBtoScalar(240.f, 255.f, 36.f)); // Yellow color
+    setPosition(corePose.p);
 }
 
-WreckingBall::WreckingBall(const PxTransform& pose, float radius, float density)
-	: Collider(pose)
-{
-	createShape(PxSphereGeometry(radius), density);
-	
-	// Set the color to red for debugging
-	setColour(PxVec3(1.f, 0.f, 0.f));
+CraneCore::~CraneCore() {}
 
-	setName("WreckingBall");
+// --- CraneLowerArm Implementation ---
+CraneLowerArm::CraneLowerArm(const PxTransform& pose, float size, float length) : StaticActor(pose), size(size), length(length) {
+	// Create the arm shape
+	PxTransform armPose = pose * PxTransform(PxVec3(0, size * 1.8f, 0));
+	createShape(PxBoxGeometry(1, length*size*50, 1), 0.0f);
+	setColour(Helpful::RGBtoScalar(240.f, 255.f, 36.f)); // Yellow color
+	setPosition(armPose.p);
 }
 
-void WreckingBall::OnCollision(Collider* other)
-{
-	// Wait for the building to settle before checking for collisions
-	if (PhysicsEngine::getUptime() < 3.f) return;
-
-	if (StructureMaterial* material = dynamic_cast<StructureMaterial*>(other))
-	{
-		PxVec3 velocity = ((PxRigidDynamic*)getPxActor())->getLinearVelocity();
-		PxVec3 colliderVelocity = ((PxRigidDynamic*)material->getPxActor())->getLinearVelocity();
-
-		PxVec3 impulse = PxVec3(
-			((PxReal)velocity.x - (PxReal)colliderVelocity.x) * ((PxRigidDynamic*)getPxActor())->getMass() * 10.f,
-			((PxReal)velocity.y - (PxReal)colliderVelocity.y) * ((PxRigidDynamic*)getPxActor())->getMass() * 10.f,
-			((PxReal)velocity.z - (PxReal)colliderVelocity.z) * ((PxRigidDynamic*)getPxActor())->getMass() * 10.f
-		);
-
-		float impulseMagnitude = impulse.magnitude();
-
-		if (impulseMagnitude > material->getBreakForce())
-			material->Break();
-	}
+CraneUpperArm::CraneUpperArm(const PxTransform& pose, float size, float length) : StaticActor(pose), size(size), length(length) {
+    // Create the arm shape
+    PxTransform armPose = pose * PxTransform(PxVec3(0, size * 1.8f, 0));
+    createShape(PxBoxGeometry(1, length * size * 50, 1), 0.0f);
+    setColour(Helpful::RGBtoScalar(240.f, 255.f, 36.f)); // Yellow color
+    setPosition(armPose.p);
 }
 
-Wheel::Wheel(const PxTransform& pose)
-	: StaticActor(pose)
-{
-	// Add a cylinder shape to represent the wheel
-	createShape(PxBoxGeometry(PxVec3(1.f, 1.5f, 1.5f)), 1.0f);
-	
-	// Set the color to black for debugging
-	setColour(PxVec3(0.f, 0.f, 0.f));
+// --- CraneArm Implementation ---
+CraneArm::CraneArm(const PxTransform& pose, float size, float length)
+    : StaticActor(pose), size(size), length(length), lowerArm(nullptr), upperArm(nullptr) {
+    // Create the upper and lower arm shapes
+    PxTransform lowerArmPose = pose * PxTransform(PxVec3(0, size * 1.8f, 0));
+    PxTransform upperArmPose = pose * PxTransform(PxVec3(0, size * 1.8f + length, 0));
+
+    lowerArm = new CraneLowerArm(lowerArmPose, size, length);
+    upperArm = new CraneUpperArm(upperArmPose, size, length);
+}
+
+std::vector<Actor*> CraneArm::getActors() {
+	std::vector<Actor*> armActors;
+	armActors.push_back(lowerArm);
+	armActors.push_back(upperArm);
+	return armActors;
+}
+
+// --- CraneHook Implementation ---
+CraneHook::CraneHook(const PxTransform& pose, float size) : StaticActor(pose), size(size) {
+    //createShape(PxBoxGeometry(size / 4, size / 2, size / 4), 10.0f);
+    //setPosition(pose.p);
+}
+
+CraneHook::~CraneHook() {}
+
+// --- Chain Implementation ---
+Chain::Chain(const PxTransform& pose, float size) : StaticActor(pose), size(size) {
+    //createShape(PxCapsuleGeometry(size / 8, size), 10.0f);
+    //setPosition(pose.p);
+}
+
+Chain::~Chain() {}
+
+// --- WreckingBall Implementation ---
+WreckingBall::WreckingBall(const PxTransform& pose, float size) : StaticActor(pose), size(size){
+    //createShape(PxSphereGeometry(size), 3.0f);
+    //setPosition(pose.p);
+}
+
+WreckingBall::~WreckingBall() {}
+
+void WreckingBall::onColision(Actor* other) {
+    // Handle collision logic here
+}
+
+// --- Crane Implementation ---
+Crane::Crane(const PxTransform& pose, float Size, float Length) 
+    : Size(Size), Length(Length) {
+
+    //Center of the crane : pose
+	PxTransform wheelPose = pose * PxTransform(PxVec3(0, -Size / 2, 0));
+	PxTransform basePose = pose * PxTransform(PxVec3(0, Size / 2, 0));
+	PxTransform corePose = pose * PxTransform(PxVec3(0, Size, 0));
+	PxTransform armPose = pose * PxTransform(PxVec3(0, Length, 1.2f));
+	PxTransform hookPose = pose * PxTransform(PxVec3(0, Size, 1.2f + Length));
+	PxTransform chainPose = pose * PxTransform(PxVec3(0, Size, 1.2f + Length));
+	PxTransform ballPose = pose * PxTransform(PxVec3(0, -Size / 2, 1.2f + Length));
+
+    wheels = new Wheels(pose, Size);
+    base = new CraneBase(pose, Size);
+    core = new CraneCore(pose, Size);
+    arm = new CraneArm(pose, Size, Length);
+    hook = new CraneHook(pose, Size);
+    chain = new Chain(pose, Length);
+    ball = new WreckingBall(pose, Size);
+}
+
+Crane::~Crane() {
+    delete wheels;
+    delete base;
+    delete core;
+    delete arm;
+    delete hook;
+    delete chain;
+    delete ball;
+}
+
+void Crane::Update(PxReal deltaTime, InputManager* inputManager, Camera* camera) {  
+ PxVec3 movement(0.0f, 0.0f, 0.0f);  
+
+ if (inputManager->isKeyPressed(static_cast<unsigned char>('W'))) {  
+     movement.z += 1.0f; // Move forward  
+ }  
+ if (inputManager->isKeyPressed(static_cast<unsigned char>('S'))) {  
+     movement.z -= 1.0f; // Move backward  
+ }  
+ if (inputManager->isKeyPressed(static_cast<unsigned char>('A'))) {  
+     movement.x -= 1.0f; // Move left  
+ }  
+ if (inputManager->isKeyPressed(static_cast<unsigned char>('D'))) {  
+     movement.x += 1.0f; // Move right  
+ }  
+
+ // Apply movement to the crane's position  
+ PxTransform currentPose = this->getPxActor()->getGlobalPose();  
+ currentPose.p += movement * deltaTime * 5.0f; // Adjust speed multiplier as needed  
+ this->getPxActor()->setGlobalPose(currentPose);  
+}
+
+std::vector<Actor*> Crane::getActors() {
+    std::vector<Actor*> actors;  
+    // Add actors from wheels  
+    std::vector<Actor*> wheelActors = wheels->getActors();  
+    actors.insert(actors.end(), wheelActors.begin(), wheelActors.end());  
+
+    // Add other components  
+    actors.push_back(base);  
+    actors.push_back(core);  
+    actors.push_back(arm);  
+    actors.push_back(hook);  
+    actors.push_back(chain);  
+    actors.push_back(ball);  
+
+    return actors;  
 }

@@ -10,114 +10,142 @@
 #ifndef Crane_h
 #define Crane_h
 
-class CraneBase : public StaticActor
-{
-public:
-    CraneBase(const PxTransform& pose = PxTransform(PxIdentity),
-        float baseSize = 2.5f,
-        float beamThickness = .15f,
-        float sectionLength = 2.f,
-        float height = 80.f);
-};
+using namespace physx;
+using namespace std;
 
-class CraneArm : public Actor
-{
-public:
-    CraneArm(const PxTransform& pose = PxTransform(PxIdentity),
-        float beamThickness = .15f,
-        float sectionLength = 2.f);
-    ~CraneArm();
-
-    // Expose actors for rendering/physics
-    std::vector<Actor*> getActors() const;
-
-private:
-    StaticActor* lowerArm;
-    DynamicActor* upperArm;
-    RevoluteJoint* elbowJoint;
-};
-
-class CraneHook : public StaticActor
-{
-public:
-    CraneHook(const PxTransform& pose = PxTransform(PxIdentity),
-        float baseSize = 2.5f,
-        float beamThickness = .15f,
-        float length = 50.f,
-        float hookSize = 2.f);
-
-    float getMinExtension() const { return minExtension; }
-    float getMaxExtension() const { return maxExtension; }
-    float getExtensionSpeed() const { return extensionSpeed; }
-
-private:
-    float minExtension, maxExtension;
-    float extensionSpeed = 0.1f;
-};
-
-class ChainLink : public DynamicActor
-{
-public:
-    ChainLink(const PxTransform& pose = PxTransform(PxIdentity));
-
-    static float getSize() { return 1.f; }
-};
-
-class Chain
-{
-public:
-    Chain(Actor* start, PxVec3 startOffset, Actor* end, PxVec3 endOffset);
-    ~Chain();
-
-    float getLength() const { return length; }
-    std::vector<Actor*> getActors() const;
-
-private:
-    float length;
-    std::vector<ChainLink*> links;
-    std::vector<RevoluteJoint*> joints;
-};
-
+// --- Wheel Class ---
 class Wheel : public StaticActor
 {
 public:
-    Wheel(const PxTransform& pose);
+	Wheel(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f);
+	~Wheel(); 
+private:
+	float size;
 };
 
-class WreckingBall : public Collider
+// --- Wheels Class ---
+class Wheels : public StaticActor
 {
 public:
-    WreckingBall(const PxTransform& pose = PxTransform(PxIdentity),
-        float radius = 1.f,
-        float density = 1.f);
-
-    void CustomUpdate(float deltaTime) override {}
-    void OnCollision(Collider* other) override;
+	Wheels(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f);
+	~Wheels();
+	std::vector<Actor*> getActors();
+private:
+	Wheel* wheels[4];
 };
 
+// --- CraneBase Class ---
+class CraneBase : public StaticActor
+{
+public:
+	CraneBase(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f);
+	~CraneBase();
+private:
+	float size;
+};
+
+// --- CraneCore Class ---
+class CraneCore : public StaticActor
+{
+public:
+	CraneCore(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f);
+	~CraneCore();
+private:
+	float size;
+};
+
+// --- CraneLowerArm Class ---
+class CraneLowerArm : public StaticActor
+{
+public:
+	CraneLowerArm(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f, float length = 1.0f);
+	~CraneLowerArm() { delete this; } // Destructor
+private:
+	float size;
+	float length;
+};
+
+// --- CraneUpperArm Class ---
+class CraneUpperArm : public StaticActor
+{
+public:
+	CraneUpperArm(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f, float length = 1.0f);
+	~CraneUpperArm() { delete this; } // Destructor
+private:
+	float size;
+	float length;
+};
+
+// --- CraneArm Class ---
+class CraneArm : public StaticActor
+{
+public:
+	CraneArm(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f, float length = 1.0f);
+    ~CraneArm() {
+        // Clean up the arm components
+        delete lowerArm;
+        delete upperArm;
+    }
+	std::vector<Actor*> getActors();
+private:
+	CraneLowerArm* lowerArm; // The lower arm of the crane connected to the core
+	CraneUpperArm* upperArm; // The upper arm of the crane connected to the lower arm
+	float size;
+	float length; // Declare 'length' as a member of the class
+};
+
+// --- CraneHook Class ---
+class CraneHook : public StaticActor
+{
+public:
+	CraneHook(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f);
+	~CraneHook();
+private:
+	float size;
+};
+
+// --- Chain Class ---
+class Chain : public StaticActor
+{
+public:
+	Chain(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f);
+	~Chain();
+private:
+	float size;
+};
+
+// --- WreckingBall Class ---
+class WreckingBall : public StaticActor
+{
+public:
+    WreckingBall(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f);
+	~WreckingBall();
+
+	void onColision(Actor* other);
+private:
+	float size;
+};
+
+// --- Crane Class ---
 class Crane : public Actor
 {
 public:
-    Crane(const PxTransform& pose = PxTransform(PxIdentity),
-        float baseSize = 2.5f,
-        float chassisHeight = .15f,
-        float sectionLength = 2.f,
-        float height = 80.f,
-        float length = 50.f);
+    Crane(const PxTransform& pose = PxTransform(PxIdentity), float Size = 1.0f, float Length = 1.0f);
     ~Crane();
 
-    void Update(PxReal deltaTime, InputManager* inputManager, Camera* camera) override;
-    std::vector<Actor*> getActors() override;
+    void Update(PxReal deltaTime, InputManager* inputManager, Camera* camera);
+    std::vector<Actor*> getActors();
 
 private:
-    float baseSize, beamThickness, sectionLength, height, length;
+    float Size, Length;
 
-    CraneBase* base;
-    CraneArm* arm;
-    CraneHook* hook;
-    Chain* chain;
-    WreckingBall* ball;
-    std::vector<Wheel*> wheels;
+	Wheels* wheels; // The wheels of the crane connected to the base
+	CraneBase* base; // The base of the crane connected to the wheels and the core
+	CraneCore* core; // The core of the crane connected by a joint to the base, and the arm
+	CraneArm* arm; // The arm of the crane connected to the core
+	CraneHook* hook; // The hook of the crane connected to the arm
+	Chain* chain; // The chain of the crane connected to the hook and the wrecking ball
+	WreckingBall* ball; // The wrecking ball connected to the chain
 
     float rotationSpeed = 0.005f;
 };

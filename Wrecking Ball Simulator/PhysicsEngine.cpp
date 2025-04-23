@@ -55,7 +55,7 @@ namespace PhysicsEngine {
         scene->Init(camera, inputManager);
 
 		// Create the crane
-		crane = new Crane(PxTransform(PxVec3(0.f, 0.f, 0.f)), 6.f, 6.f, 2.f, 12.f, 10.f);
+		crane = new Crane(PxTransform(PxVec3(-10.f, 10.f, 0.f)), 5.f, 1.f);
         scene-> addActors(crane->getActors());
 
 		// Initialize the camera
@@ -71,6 +71,11 @@ namespace PhysicsEngine {
     void Update() {
         if (scene) {
             scene->Update(deltaTime);
+
+            // Update the crane with input handling
+            if (crane && inputManager) {
+                crane->Update(deltaTime, inputManager, camera);
+            }
         }
     }
 
@@ -187,6 +192,7 @@ namespace PhysicsEngine {
         Renderer::Start(camera->getPosition(), camera->getDirection());
 
         vector<PxActor*> actors = scene->getPxActors();
+		printf("Actors: %d\n", (int)actors.size());
 
         if (!actors.empty())
         {

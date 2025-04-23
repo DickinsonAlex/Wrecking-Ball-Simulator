@@ -11,7 +11,11 @@ class Level : public Scene
 {
 private:
 	Plane* ground; // Plane object for the level
-	Structure* structure_1; // House object for the level
+	Structure* building_1; // Building object for the level
+	Structure* building_2; // Building object for the level
+	Structure* building_3; // Building object for the level
+	Structure* building_4; // Building object for the level
+	Structure* building_5; // Building object for the level
 	Crane* crane; // Crane object for the level
 protected:
 	void spawnFeatures(); // Spawn features in the scene

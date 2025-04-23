@@ -1,5 +1,6 @@
 #include "Structure.h"
 #include "PhysicsEngine.h"
+#include "Helpful.h"
 
 Structure::Structure(const PxTransform& pose, int floors, int width, int depth)
 {
@@ -357,7 +358,7 @@ Foundation::Foundation(const PxTransform& pose, float foundationSize)
 	: StaticActor(PxTransform(pose.p + PxVec3(0.f, 0.5f, 0.f), pose.q)), foundationSize(foundationSize)
 {
 	createShape(PxBoxGeometry(foundationSize, 0.5f, foundationSize));
-	setColour(PxVec3(.1f, .1f, .1f));
+	setColour(Helpful::RGBtoScalar(0.6f, 0.4f, 0.2f)); // brown wood
 }
 
 SupportPillar::SupportPillar(Foundation* foundation, Actor* ancorActor, int floor, float floorHeight)
@@ -404,8 +405,8 @@ SupportPillar::SupportPillar(Foundation* foundation, Actor* ancorActor, int floo
 		AddJoint(joint3, anchor);
 	}
 
-	setColour(PxVec3(.25f, .25f, .25f));
-	setName("SupportPillar");
+	setColour(Helpful::RGBtoScalar(0.5f, 0.5f, 0.5f)); // Grey color
+	setName("Pillar");
 }
 
 void SupportPillar::OnCollision(Collider* other)
@@ -526,8 +527,8 @@ StructureFloor::StructureFloor(const PxTransform& pose, float width, float depth
 			pillarX += numPillarsX - 2;
 	}
 
-	setColour(PxVec3(.5f, .5f, .5f));
-	setName("StructureFloor");
+	setColour(Helpful::RGBtoScalar(0.5f, 0.5f, 0.5f)); // Grey color
+	setName("Floor");
 }
 
 void StructureFloor::OnCollision(Collider* other)
@@ -579,7 +580,8 @@ Window::Window(const PxTransform& pose, PxVec3 size, vector<PxVec3> jointLocatio
 		AddAnchor(attachment1);
 	}
 
-	setColour(PxVec3(.2f, .5f, .8f));
+	// Blue window
+	setColour(Helpful::RGBtoScalar(119.f, 199.f, 190.f));
 	setName("Window");
 }
 

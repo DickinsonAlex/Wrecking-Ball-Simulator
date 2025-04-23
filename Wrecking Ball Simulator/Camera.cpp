@@ -32,9 +32,7 @@ void Camera::update(float deltaTime)
     if (targetActor)
     {
         // Update camera position and rotation based on the target actor
-		position = targetActor->getPosition() + PxVec3(10, 20, -20); // offset
-
-        // Looking down on target actor
-		orientation = targetActor->getOrientation() + PxVec3(15, -40, 70); // offset
+		position = targetActor->getPosition() + PxVec3(40, 40, -40); // position offset
+		orientation = targetActor->getOrientation() + PxVec3(-95, -40, 70); // angle offset
     }
 }
