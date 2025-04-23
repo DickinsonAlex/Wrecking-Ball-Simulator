@@ -40,7 +40,6 @@ public:
 	void addActors(vector<Actor*> actorList); // Add a list of actors to the scene
 	void removeActor(Actor* actor); // Remove an actor from the list  
 
-	void KeyDown(unsigned char key); // Handle key down events  
 	void setMousePosition(PxVec2); // Set mouse position  
 };
 

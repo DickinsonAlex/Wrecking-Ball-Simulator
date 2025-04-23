@@ -207,7 +207,6 @@ namespace PhysicsEngine {
 
     void KeyPress(unsigned char key, int x, int y) {
         inputManager->setKeyPressed(key);
-        scene->KeyDown(key);
     }
 
     void KeyRelease(unsigned char key, int x, int y) {

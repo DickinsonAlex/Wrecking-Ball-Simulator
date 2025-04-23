@@ -103,35 +103,6 @@ void Scene::removeActor(Actor* actor)
     actors.erase(std::remove(actors.begin(), actors.end(), actor), actors.end());  
 }  
 
-void Scene::KeyDown(unsigned char key)  
-{  
-    if (!actors.empty())  
-    {  
-        Actor* actor = actors[0];  
-        PxVec3 position = actor->getPosition();  
-
-        switch (key)  
-        {  
-        case 'w':  
-            position.y += 1.0f;  
-            break;  
-        case 's':  
-            position.y -= 1.0f;  
-            break;  
-        case 'a':  
-            position.x -= 1.0f;  
-            break;  
-        case 'd':  
-            position.x += 1.0f;  
-            break;  
-        default:  
-            break;  
-        }  
-
-        actor->setPosition(position);  
-    }  
-}  
-
 void Scene::setMousePosition(PxVec2 mousePosition)  
 {  
     // Currently will do nothing with the mouse position, will later change the camera to orbit the actor in third person and use this function  
