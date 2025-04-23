@@ -69,13 +69,14 @@ Crane::Crane(const PxTransform& pose, float Size, float Length)
     : DynamicActor(pose), Size(Size), Length(Length){
 
     //Center of the crane : pose
-	//PxTransform bottomPose = pose * PxTransform(PxVec3(0, Size / 2, 0));
-	//PxTransform topPose = pose * PxTransform(PxVec3(0, Size * 1.8f + Length, 0));
+	PxTransform bottomPose = pose * PxTransform(PxVec3(0, Size / 2, 0));
+	PxTransform topPose = pose * PxTransform(PxVec3(0, Size * 1.8f + Length, 0));
 
-	//bottom = new CraneBottom(bottomPose, Size);
-	//top = new CraneTop(topPose, Size, Length);
+	bottom = new CraneBottom(bottomPose, Size);
+	top = new CraneTop(topPose, Size, Length);
+	
 	thePoint = new DynamicActor(pose);
-	thePoint->createShape(PxBoxGeometry(Size * 2.2, Size / 3, Size * 2.2), 0.0f);
+	thePoint->createShape(PxSphereGeometry(.5f), 1.0f);
 }
 
 Crane::~Crane() {
@@ -94,10 +95,10 @@ void Crane::Move(PxVec2 movementOffset) {
 vector<Actor*> Crane::getActors() {
     vector<Actor*> actors;  
     // Add actors from wheels  
-    //vector<Actor*>topActors = top->getActors();  
-	//actors.insert(actors.end(), topActors.begin(), topActors.end());
-	//vector<Actor*> bottomActors = bottom->getActors();
-	//actors.insert(actors.end(), bottomActors.begin(), bottomActors.end());
+    vector<Actor*>topActors = top->getActors();  
+	actors.insert(actors.end(), topActors.begin(), topActors.end());
+	vector<Actor*> bottomActors = bottom->getActors();
+	actors.insert(actors.end(), bottomActors.begin(), bottomActors.end());
 
 	actors.push_back(thePoint);
 
