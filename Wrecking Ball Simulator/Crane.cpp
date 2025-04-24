@@ -84,6 +84,12 @@ CraneTop::CraneTop(const PxTransform& pose, float size, float length, CraneBotto
 	joint->setDriveVelocity(0.0f); // No drive velocity
 	joint->setProjectionLinearTolerance(0.1f);
 	joint->setProjectionAngularTolerance(0.1f);
+
+	// Create the crane arm
+	PxTransform armPose = pose * PxTransform(PxVec3(0, size * 2.8f + length / 2, 0));
+	createShape(PxBoxGeometry(width, height, length), 1.0f);
+    setColour(Helpful::RGBtoScalar(240.f, 255.f, 36.f)); // Yellow color
+    setPosition(armPose.p);
 }
 
 CraneTop::~CraneTop() {}

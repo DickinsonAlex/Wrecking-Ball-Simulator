@@ -63,6 +63,8 @@ private:
 	float Size, Length;
 	CraneBottom* bottom;
 	CraneTop* top;
+	//CraneChain* chain;
+	//CraneBall* ball;
 
 	float rotationSpeed = 0.005f;
 };
