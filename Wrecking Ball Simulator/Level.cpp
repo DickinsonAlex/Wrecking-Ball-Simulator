@@ -15,8 +15,14 @@ void Level::spawnFeatures()
     addActor(ground);
 
 
-	// Create multiple buildings and add it to the scene
-	//building_1 = new Structure(PxTransform(PxVec3(10.f, 10.f, 80.f)), 2, 3, 3); // Pose, floors, width, depth)
+	//Create multiple buildings and add it to the scene
+	wall = new wallStructure(PxTransform(PxVec3(10.f, 10.f, 80.f)), 10, 50, 1, 5); // Pose, floors, width, depth)
+	wall->setName("Wall");
+	for (Actor* actor : wall->getActors())
+	{
+		actor->setColour(Helpful::RGBtoScalar(255.f, 0.f, 0.f)); // Red color
+		addActor(actor);
+	}
 
 	printf("Level features spawned successfully.\n");
 }
@@ -33,8 +39,8 @@ vector<Actor*> Level::getActors()
     actors.push_back(ground);
 	actors.push_back(crane);
 
-    //for (Actor* actor : building_1->getActors())
-    //    actors.push_back(actor);
+    for (Actor* actor : wall->getActors())
+        actors.push_back(actor);
 
     return actors;
 }

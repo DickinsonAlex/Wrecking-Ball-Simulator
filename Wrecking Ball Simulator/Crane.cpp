@@ -23,7 +23,7 @@ CraneBottom::CraneBottom(const PxTransform& pose, float size) : DynamicActor(pos
     float depth = size * 2.2f;
 
     PxTransform basePose = pose * PxTransform(PxVec3(0, size / 2, 0));
-    createShape(PxBoxGeometry(width, height, depth), 1.0f);
+    createShape(PxBoxGeometry(width, height, depth), 10.0f);
     setColour(Helpful::RGBtoScalar(100.0f, 100.0f, 100.0f)); // Grey color
     setPosition(basePose.p);
 
@@ -117,12 +117,19 @@ Crane::~Crane() {
     delete top;
 }
 
-void Crane::Move(PxVec2 movementOffset) {
-	for (Actor* actor : getActors()) {
-		PxVec3 currentPosition = actor->getPosition();
-		PxVec3 newPosition = currentPosition + PxVec3(movementOffset.x, 0, movementOffset.y);
-		actor->setPosition(newPosition);
-	}
+void Crane::Move(PxVec2 movementOffset) {  
+   PxQuat orientation = getOrientation(); // Get the crane's current orientation  
+   PxVec3 forward = orientation.rotate(PxVec3(0, 0, 1)); // Forward direction relative to orientation  
+   PxVec3 right = orientation.rotate(PxVec3(1, 0, 0)); // Right direction relative to orientation  
+
+   // Calculate movement in world space based on the offset and orientation  
+   PxVec3 movement = forward * movementOffset.y + right * movementOffset.x;  
+
+   for (Actor* actor : getActors()) {  
+       PxVec3 currentPosition = actor->getPosition();  
+       PxVec3 newPosition = currentPosition + movement;  
+       actor->setPosition(newPosition);  
+   }  
 }
 
 void Crane::Rotate(Actor* target, float direction)  

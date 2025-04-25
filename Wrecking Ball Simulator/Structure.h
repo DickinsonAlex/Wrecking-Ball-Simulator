@@ -4,16 +4,31 @@
 #include <vector>
 #include <map>
 
-#ifndef STRUCTURE_H
-#define STRUCTURE_H
+#ifndef WALLSTRUCTURE_H
+#define WALLSTRUCTURE_H
 
 using namespace std;
 
-class Structure : public Collider
+class brick : public DynamicActor
 {
 public:
-	Structure(const PxTransform& pose = PxTransform(PxIdentity), int floors = 1, int width = 1, int depth = 1);
-	~Structure();
+	brick(const PxTransform& pose = PxTransform(PxIdentity), int size = 1);
+	~brick();
+private:
+	int size;
 };
 
-#endif // !STRUCTURE_H;
+class wallStructure : public DynamicActor
+{
+public:
+	wallStructure(const PxTransform& pose = PxTransform(PxIdentity), int height = 1, int length = 1, int depth = 1, int blockSize = 1);
+	~wallStructure();
+	vector<Actor*> getActors();
+private:
+	int height;
+	int length;
+	int depth;
+	vector<Actor*> actors; // Store the actors in a vector
+};
+
+#endif // !WALLSTRUCTURE_H;
