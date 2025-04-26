@@ -64,6 +64,27 @@ std::vector<Actor*> CraneBottom::getActors() {
 	return actors;
 }
 
+// --- WreckingBall Implementation ---
+WreckingBall::WreckingBall(const PxTransform& pose, float size) : DynamicActor(pose), size(size) {
+	createShape(PxSphereGeometry(size), 150.0f); // Increased density for more mass
+	setColour(Helpful::RGBtoScalar(0.f, 0.f, 0.f)); // Black
+	setPosition(pose.p);
+}
+
+WreckingBall::~WreckingBall() { delete this; }
+
+// --- CraneChain Implementation ---
+CraneChain::CraneChain(const PxTransform& pose, float chainSegmentLength) : DynamicActor(pose)  {
+	createShape(PxSphereGeometry(chainSegmentLength), 100.0f); // Increased density for more mass
+	// Rotate the capsule to align with the chain
+	PxQuat rot = PxQuat(PxPi / 2, PxVec3(0, 0, 1)); // Rotate around X axis
+	setOrientation(rot);
+
+	setColour(Helpful::RGBtoScalar(100.f, 100.f, 100.f)); // Grey color
+	setPosition(pose.p);
+}
+CraneChain::~CraneChain() { delete this; }
+
 // --- CraneArmBottom Implementation ---
 CraneArmBottom::CraneArmBottom(const PxTransform& pose, float size, float length) : DynamicActor(pose), size(size), length(length) {
 	createShape(PxBoxGeometry(length, size, size+1), 100.0f); // Increased density for more mass
@@ -75,7 +96,7 @@ CraneArmBottom::~CraneArmBottom() { delete this; }
 
 // --- CraneArmTop Implementation ---
 CraneArmTop::CraneArmTop(const PxTransform& pose, float size, float length) : DynamicActor(pose), size(size), length(length) {
-	createShape(PxBoxGeometry(size+.1f, size, length+6), 100.0f); // Increased density for more mass
+	createShape(PxBoxGeometry(size+.1f, size, length+6), 1.0f); // Increased density for more mass
 	setColour(Helpful::RGBtoScalar(240.f, 255.f, 36.f)); // Yellow color
 	setPosition(pose.p);
 }
@@ -131,13 +152,55 @@ CraneTop::CraneTop(const PxTransform& pose, float size, float length, CraneBotto
 	armTop->setName("Crane Arm Top");
 	armBottom->setName("Crane Arm Bottom");
 
-    
+	// Create the wrecking ball
+	WreckingBall* wreckingBall = new WreckingBall(pose * PxTransform(PxVec3(0, size*2, size*6)), size * 1.5f);
+
+    // Create the wrecking ball (at end position of chain)
+    float chainLength = size * 1.5f; // Total length of chain
+    int numChains = 40; // Number of chain links
+    float chainSegmentLength = chainLength / numChains;
+
+    // Create chain segments to connect the wrecking ball to the arm
+    std::vector<CraneChain*> chains = std::vector<CraneChain*>();
+    for (int i = 0; i < numChains; ++i) {
+        // Calculate position for this chain segment
+        // Start from ball and go up
+        float yOffset = size * 2.8f - chainLength + (i * chainSegmentLength);
+        PxVec3 chainPos = PxVec3(0, yOffset, size * 6);
+        PxTransform chainPose = pose * PxTransform(chainPos);
+
+        CraneChain* chain = new CraneChain(chainPose);
+        chain->setName("Chain " + std::to_string(i));
+        chains.push_back(chain);
+    }
+
+	// Connect the first chain with the ball
+    new FixedJoint(chains[0], PxTransform(PxVec3(-chainSegmentLength / 2, 0, 0)),
+        wreckingBall, PxTransform(PxVec3(0, size * 1.5f, 0)));
+
+    // Connect the last chain with the arm
+    new FixedJoint(chains[chains.size() - 1], PxTransform(PxVec3(chainSegmentLength / 2, 0, 0)),
+        armTop, PxTransform(PxVec3(0, 0, size * 4)));
+
+    // Connect the chains in between
+    for (size_t i = 0; i < chains.size() - 1; ++i) {
+        new RevoluteJoint(chains[i], PxTransform(PxVec3(0, chainSegmentLength / 2, 0)),
+            chains[i + 1], PxTransform(PxVec3(-chainSegmentLength / 2, 0, 0)));
+    }
+
+    // Add to actors vector
+    for (auto chain : chains) {
+        actors.push_back(chain); // Add each chain to the list of actors
+    }
     actors.push_back(this); // Add the arm to the list of actors
-	actors.push_back(armBottom); // Add the arm to the list of actors
-	actors.push_back(armTop); // Add the arm to the list of actors
+    actors.push_back(armBottom); // Add the arm to the list of actors
+    actors.push_back(armTop); // Add the arm to the list of actors
+    actors.push_back(wreckingBall); // Add the wrecking ball to the list of actors
 }
 
-CraneTop::~CraneTop() {}
+CraneTop::~CraneTop() {
+    delete this;
+}
 
 std::vector<Actor*> CraneTop::getActors() {
     return actors;
@@ -195,17 +258,17 @@ void Crane::Rotate(Actor* target, float direction)
 
 void Crane::Update(float deltaTime, InputManager* inputManager) {
     if (inputManager->isKeyPressed(static_cast<unsigned char>('w')))
-        Move(PxVec2(0.0f, 0.5f)); // Move forward
+        Move(PxVec2(0.0f, 0.2f)); // Move forward
     if (inputManager->isKeyPressed(static_cast<unsigned char>('s')))
-        Move(PxVec2(0.0f, -0.5f)); // Move backward
+        Move(PxVec2(0.0f, -0.2f)); // Move backward
     if (inputManager->isKeyPressed(static_cast<unsigned char>('a')))
-        Rotate(bottom, -5.0f); // Rotate left
+        Rotate(bottom, -2.0f); // Rotate left
     if (inputManager->isKeyPressed(static_cast<unsigned char>('d')))
-        Rotate(bottom, 5.0f); // Rotate right
+        Rotate(bottom, 2.0f); // Rotate right
     if (inputManager->isKeyPressed(static_cast<unsigned char>('q')))
-        Rotate(top, 20.0f); // Rotate top left
+        Rotate(top, 10.0f); // Rotate top left
     if (inputManager->isKeyPressed(static_cast<unsigned char>('e')))
-        Rotate(top, -20.0f); // Rotate top right
+        Rotate(top, -10.0f); // Rotate top right
 }
 
 vector<Actor*> Crane::getActors() {

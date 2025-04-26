@@ -36,6 +36,25 @@ private:
 	Wheel* wheels[4];
 };
 
+// --- WreckingBall Class ---
+class WreckingBall : public DynamicActor
+{
+public:
+	WreckingBall(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f);
+	~WreckingBall();
+private:
+	float size;
+};
+
+// --- CraneChain Class ---
+class CraneChain : public DynamicActor
+{
+public:
+	CraneChain(const PxTransform& pose = PxTransform(PxIdentity), float chainSegmentLength = 1.f);
+	~CraneChain();
+};
+
+
 // --- CraneArm Class ---
 class CraneArmBottom : public DynamicActor
 {
@@ -86,8 +105,6 @@ private:
 	float Size, Length;
 	CraneBottom* bottom;
 	CraneTop* top;
-	//CraneChain* chain;
-	//CraneBall* ball;
 
 	float rotationSpeed = 0.005f;
 };
