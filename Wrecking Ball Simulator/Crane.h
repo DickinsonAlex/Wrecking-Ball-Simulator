@@ -1,7 +1,6 @@
 // Crane.h
 #pragma once
 
-#include "Collider.h"
 #include "Joints.h"
 #include "InputManager.h"
 #include "Camera.h"

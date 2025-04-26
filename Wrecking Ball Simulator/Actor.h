@@ -40,8 +40,6 @@ public:
    // Shape management  
    PxShape* getShape(PxU32 shapeIndex); // Get a specific shape  
    vector<PxShape*> getShapes(PxU32 shapeIndex = -1); // Get all shapes or a specific one  
-   void detachShape(PxU32 shapeIndex); // Detach a specific shape  
-   void detachAllShapes(); // Detach all shapes  
 };  
 
 class DynamicActor : public Actor  

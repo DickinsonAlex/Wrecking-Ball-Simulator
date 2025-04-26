@@ -25,7 +25,6 @@ namespace PhysicsEngine
 	PxCooking* getCooking();
 	Scene* getScene();
 	PxMaterial* getMaterial(PxU32 index = 0);
-	PxReal getUptime();
 
 	// Setters
 	void setScene(Scene* newScene);
@@ -34,13 +33,11 @@ namespace PhysicsEngine
 	void KeyPress(unsigned char key, int x, int y);
 	void KeyRelease(unsigned char key, int x, int y);
 	void mouseCallback(int button, int state, int x, int y);
-	void mouseMotionCallback(int x, int y);
 	void exitCallback();
 
 	// PhysX Stuff
 	extern PxVec3 DefaultColour;
 	PxMaterial* createMaterial(PxReal staticFriction = .0f, PxReal dynamicFriction = .0f, PxReal coefficientRestitution = .0f);
-	PxConvexMeshGeometry CreateConvexMeshGeometry(vector<PxVec3>& verts, float x = 0.f, float y = 0.f, float z = 0.f, PxVec3 rotation = PxVec3(0.f, 0.f, 0.f));
 }
 
 #endif // PHYSICSENGINE_H

@@ -100,51 +100,6 @@ vector<PxShape*> Actor::getShapes(PxU32 shapeIndex)
 		return vector<PxShape*>();
 }
 
-void Actor::detachShape(PxU32 shapeIndex)
-{
-	vector<PxShape*> shapes = getShapes();
-
-	if (shapeIndex < shapes.size())
-	{
-		PxShape* shape = shapes[shapeIndex];
-
-		// Clean up associated user data
-		if (shape->userData)
-		{
-			delete static_cast<UserData*>(shape->userData);
-			shape->userData = nullptr;
-		}
-
-		// Detach shape from actor
-		((PxRigidActor*)pxActor)->detachShape(*shape, true);
-
-		// Remove Colour associated with this shape
-		colours.erase(colours.begin() + shapeIndex);
-	}
-}
-
-void Actor::detachAllShapes()
-{
-	vector<PxShape*> shapes = getShapes();
-
-	for (PxU32 i = 0; i < shapes.size(); i++)
-	{
-		PxShape* shape = shapes[i];
-
-		// Clean up associated user data
-		if (shape->userData)
-		{
-			delete static_cast<UserData*>(shape->userData);
-			shape->userData = nullptr;
-		}
-
-		// Detach shape from actor
-		((PxRigidActor*)pxActor)->detachShape(*shape, true);
-	}
-
-	colours.clear();
-}
-
 // Implement getPosition()
 PxVec3 Actor::getPosition() const
 {

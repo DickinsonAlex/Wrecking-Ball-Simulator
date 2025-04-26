@@ -44,10 +44,7 @@ namespace PhysicsEngine {
         glutKeyboardFunc(KeyPress);
         glutKeyboardUpFunc(KeyRelease);
         glutMouseFunc(mouseCallback);
-        glutMotionFunc(mouseMotionCallback);
-        glutPassiveMotionFunc(mouseMotionCallback);
         atexit(exitCallback);
-        mouseMotionCallback(width / 2, height / 2);
 
 		// Create the scene
         scene = new Level();
@@ -179,17 +176,9 @@ namespace PhysicsEngine {
         inputManager->setMouse(button, state, x, y);
     }
 
-    void mouseMotionCallback(int x, int y) {
-        scene->setMousePosition(inputManager->getMousePosition());
-    }
-
     void exitCallback() {
         delete scene;
         delete camera;
         PxShutdown();
     }
-
-    PxReal getUptime() {
-		return Uptime;
-	}
 }

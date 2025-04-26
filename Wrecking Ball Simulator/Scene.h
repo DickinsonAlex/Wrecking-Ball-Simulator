@@ -31,7 +31,6 @@ public:
 	vector<Actor*> getActors(); // Get the list of actors  
 	vector<PxActor*> getPxActors(); // Get the list of PxActors
 	PxScene* getScene() { return pxScene; }
-	Actor* getActorFromPxActor(PxActor* actor);
 	virtual Actor* getTarget() = 0;
 
 	// Setters  
@@ -39,8 +38,6 @@ public:
 	void addActor(Actor* actor); // Add an actor to the list  
 	void addActors(vector<Actor*> actorList); // Add a list of actors to the scene
 	void removeActor(Actor* actor); // Remove an actor from the list  
-
-	void setMousePosition(PxVec2); // Set mouse position  
 };
 
 #endif // SCENE_H

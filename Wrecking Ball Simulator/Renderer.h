@@ -22,15 +22,8 @@ namespace Renderer
 	void Render(PxActor** actors, const PxU32 numActors);
 	void Render(const PxRenderBuffer& data, PxReal lineWidth = 1.f);
 
-	void RenderText(const string& text, const PxVec2& position, const PxVec3& color, PxReal size);
-
 	void Start(const PxVec3& cameraEye, const PxVec3& cameraDir);
 	void End();
-
-	void SetRenderDetail(int value);
-
-	void ShowShadows(bool value);
-	bool AreShadowsVisible();
 }  
 
 #endif // RENDERER_H

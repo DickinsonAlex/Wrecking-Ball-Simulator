@@ -97,21 +97,4 @@ void Scene::addActors(vector<Actor*> actorList)
 void Scene::removeActor(Actor* actor)  
 {  
     actors.erase(std::remove(actors.begin(), actors.end(), actor), actors.end());  
-}  
-
-void Scene::setMousePosition(PxVec2 mousePosition)  
-{  
-    // Currently will do nothing with the mouse position, will later change the camera to orbit the actor in third person and use this function  
-    return;  
-}
-
-Actor* Scene::getActorFromPxActor(PxActor* actor)
-{
-	vector<Actor*> actors = getActors();
-
-    for (unsigned int i = 0; i < actors.size(); i++)
-        if (actors[i]->getPxActor() == actor)
-            return actors[i];
-
-    return 0;
 }
