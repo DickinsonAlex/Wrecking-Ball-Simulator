@@ -13,11 +13,11 @@ namespace PhysicsEngine
 	using namespace std;
 
 	void Start();
-	void Init(const char* title, int width, int height);
 	void Update();
+	void Init(const char* title, int width, int height);
 	void PxInit();
 	void PxShutdown();
-	void RenderScene();
+	void DrawScene();
 	void windowReshapeCallback(int width, int height);
 
 	// Getters
@@ -32,7 +32,6 @@ namespace PhysicsEngine
 	// Input handling
 	void KeyPress(unsigned char key, int x, int y);
 	void KeyRelease(unsigned char key, int x, int y);
-	void mouseCallback(int button, int state, int x, int y);
 	void exitCallback();
 
 	// PhysX Stuff

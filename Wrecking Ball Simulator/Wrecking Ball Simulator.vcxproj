@@ -25,7 +25,6 @@
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Exception.h" />
-    <ClInclude Include="FontRenderer.h" />
     <ClInclude Include="Structure.h" />
     <ClInclude Include="Joints.h" />
     <ClInclude Include="Level.h" />
@@ -40,7 +39,6 @@
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FontData.h" />
-    <ClCompile Include="FontRenderer.cpp" />
     <ClCompile Include="Helpful.h" />
     <ClCompile Include="Structure.cpp" />
     <ClCompile Include="Joints.cpp" />

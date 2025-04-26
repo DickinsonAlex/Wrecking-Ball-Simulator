@@ -17,13 +17,11 @@ public:
 
 	// Getters
 	bool isKeyPressed(unsigned char key) const;
-	PxVec2 getMousePosition() const;
 
 	// Setters
-	void WindowReshape(int width, int height); // Update the viewport and projection matrix
+	void reshapeWindow(int width, int height); // Update the viewport and projection matrix
 	void setKeyPressed(unsigned char key);
 	void setKeyReleased(unsigned char key);
-	void setMouse(int button, int state, int x, int y); // Set mouse position
 };
 
 #endif // INPUTMANAGER_H

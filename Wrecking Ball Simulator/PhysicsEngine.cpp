@@ -43,7 +43,6 @@ namespace PhysicsEngine {
         inputManager = new InputManager();
         glutKeyboardFunc(KeyPress);
         glutKeyboardUpFunc(KeyRelease);
-        glutMouseFunc(mouseCallback);
         atexit(exitCallback);
 
 		// Create the scene
@@ -55,7 +54,7 @@ namespace PhysicsEngine {
         scene->setCamera(camera);
 
 		// Set the scene in the physics engine
-        glutDisplayFunc(RenderScene);
+        glutDisplayFunc(DrawScene);
         glutReshapeFunc(windowReshapeCallback);
     }
 
@@ -132,35 +131,22 @@ namespace PhysicsEngine {
         scene = newScene;
     }
 
-    void RenderScene()
+    void DrawScene()
     {
-        Uptime += deltaTime;
         scene->Update(deltaTime, inputManager, camera);
-
-        auto startPhysics = chrono::high_resolution_clock::now();
-        auto endPhysics = high_resolution_clock::now();
-        auto physicsTime = duration_cast<milliseconds>(endPhysics - startPhysics).count();
-        auto startTime = high_resolution_clock::now();
-
         Renderer::Start(camera->getPosition(), camera->getDirection());
-
         vector<PxActor*> actors = scene->getPxActors();
 
         if (!actors.empty())
         {
             Renderer::Render(&actors[0], (PxU32)actors.size());
         }
-
-        auto endRender = high_resolution_clock::now();
-        auto renderTime = duration_cast<milliseconds>(endRender - startTime).count();
-
-        printf("Physics: %lldms, Render: %lldms\n", physicsTime, renderTime);
 		Renderer::End();
     }
 
     void windowReshapeCallback(int width, int height)
     {
-        inputManager->WindowReshape(width, height);
+        inputManager->reshapeWindow(width, height);
         Renderer::ResizeWindow(width, height);
     }
 
@@ -170,10 +156,6 @@ namespace PhysicsEngine {
 
     void KeyRelease(unsigned char key, int x, int y) {
         inputManager->setKeyReleased(key);
-    }
-
-    void mouseCallback(int button, int state, int x, int y) {
-        inputManager->setMouse(button, state, x, y);
     }
 
     void exitCallback() {

@@ -258,9 +258,9 @@ void Crane::Rotate(Actor* target, float direction)
 
 void Crane::Update(float deltaTime, InputManager* inputManager) {
     if (inputManager->isKeyPressed(static_cast<unsigned char>('w')))
-        Move(PxVec2(0.0f, 0.2f)); // Move forward
+        Move(PxVec2(0.0f, 0.5f)); // Move forward
     if (inputManager->isKeyPressed(static_cast<unsigned char>('s')))
-        Move(PxVec2(0.0f, -0.2f)); // Move backward
+        Move(PxVec2(0.0f, -0.25f)); // Move backward
     if (inputManager->isKeyPressed(static_cast<unsigned char>('a')))
         Rotate(bottom, -2.0f); // Rotate left
     if (inputManager->isKeyPressed(static_cast<unsigned char>('d')))

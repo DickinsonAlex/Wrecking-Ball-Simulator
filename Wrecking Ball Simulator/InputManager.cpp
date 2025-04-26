@@ -28,7 +28,7 @@ void InputManager::Update() {
 }
 
 // Window reshape
-void InputManager::WindowReshape(int x, int y) {
+void InputManager::reshapeWindow(int x, int y) {
 	// Update the viewport and projection matrix if needed
 	width = x;
 	height = y;
@@ -40,11 +40,6 @@ bool InputManager::isKeyPressed(unsigned char key) const {
     return it != keyStates.end() && it->second;
 }
 
-// Get the current mouse position
-PxVec2 InputManager::getMousePosition() const {
-    return mousePosition;
-}
-
 // Set a key as pressed
 void InputManager::setKeyPressed(unsigned char key) {
     keyStates[key] = true;
@@ -53,11 +48,4 @@ void InputManager::setKeyPressed(unsigned char key) {
 // Set a key as released
 void InputManager::setKeyReleased(unsigned char key) {
     keyStates[key] = false;
-}
-
-// Set mouse button state and position
-void InputManager::setMouse(int button, int state, int x, int y) {
-    // Update mouse position
-    mousePosition = PxVec2(static_cast<float>(x), static_cast<float>(y));
-    // Mouse button state can be handled here if needed
 }

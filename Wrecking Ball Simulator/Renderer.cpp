@@ -1,7 +1,6 @@
 #include "Renderer.h"
 #include "UserData.h"
-#include "FontRenderer.h" // Include FontRenderer for text rendering
-#include <GL/glut.h> // Include OpenGL Utility Toolkit for window management
+#include <GL/glut.h>
 #include "Helpful.h"
 
 #include <vector>
@@ -218,7 +217,6 @@ namespace Renderer
 	void ResizeWindow(int width, int height)
 	{
 		glViewport(0, 0, width, height);
-		FontRenderer::setScreenResolution(width, height);
 	}
 
 	// From PhysX Tutorials
@@ -465,13 +463,6 @@ namespace Renderer
 
 			RenderBuffer(&pVertList.front(), &pColorList.front(), GL_TRIANGLES, data.getNbTriangles() * 3);
 		}
-	}
-
-	void RenderText(const string& text, int x, int y)
-	{
-		FontRenderer::setColor(1.0f, 1.0f, 1.0f, 1.0f); // Default white color
-		FontRenderer::setScreenResolution(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-		FontRenderer::print(x, y, 1.0f, text.c_str());
 	}
 
 	// From PhysX Tutorials

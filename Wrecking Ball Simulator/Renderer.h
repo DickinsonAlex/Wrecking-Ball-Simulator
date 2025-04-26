@@ -5,7 +5,6 @@
 #include <GL/glut.h>  
 #include "Actor.h"  
 #include "UserData.h"  
-#include "FontRenderer.h"  
 
 #ifndef RENDERER_H  
 #define RENDERER_H  
