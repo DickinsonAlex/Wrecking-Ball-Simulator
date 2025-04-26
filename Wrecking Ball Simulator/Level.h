@@ -11,17 +11,14 @@ class Level : public Scene
 {
 private:
 	Plane* ground; // Plane object for the level
-	Structure* building_1; // Building object for the level
-	Structure* building_2; // Building object for the level
-	Structure* building_3; // Building object for the level
-	Structure* building_4; // Building object for the level
-	Structure* building_5; // Building object for the level
+	wallStructure* wall; // Wall structure object for the level
 	Crane* crane; // Crane object for the level
 protected:
 	void spawnFeatures(); // Spawn features in the scene
-	void updateFeatures(float deltaTime, InputManager* inputManager); // Update features in the scene
+	void updateFeatures(float deltaTime, InputManager* inputManager, Camera* camera); // Update features in the scene
 public:
 	vector<Actor*> getActors(); // Get all sub-actors in the scene
+    Actor* getTarget() override { return crane->getTop(); } // Ensure it returns a pointer to the crane
 };
 
 #endif // LEVEL_H

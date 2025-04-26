@@ -34,15 +34,12 @@ void Scene::Init(Camera* cam, InputManager* iM)
     spawnFeatures();
     
     paused = false;
-}  
+}
 
-void Scene::Update(float deltaTime)  
+void Scene::Update(float deltaTime, InputManager* inputManager, Camera* camera)
 {  
-    if (camera)  
-    {  
-        camera->update(deltaTime);  
-    }  
-    updateFeatures(deltaTime, inputManager);
+    camera->update(deltaTime, getTarget());
+    updateFeatures(deltaTime, inputManager, camera);
     pxScene->simulate(deltaTime);
     pxScene->fetchResults(true);
 }  
@@ -79,57 +76,27 @@ void Scene::setCamera(Camera* cam)
     camera = cam;  
 }  
 
-void Scene::addActor(Actor* actor)  
-{  
-    if (actor)  
-    {  
-        actors.push_back(actor);  
-    }  
-}  
+void Scene::addActor(Actor* actor)
+{
+    if (actor)
+    {
+        actor->setId(actors.size()); // Set the ID of the actor to its index in the vector
+        actors.push_back(actor);
+        pxScene->addActor(*actor->getPxActor()); // Add the actor to the PhysX scene
+    }
+}
 
 void Scene::addActors(vector<Actor*> actorList)
 {
-	for (Actor* actor : actorList)
-	{
-		if (actor)
-		{
-			actors.push_back(actor);
-		}
-	}
+    for (Actor* actor : actorList)
+    {
+        addActor(actor); // Add each actor to the scene
+    }
 }
 
 void Scene::removeActor(Actor* actor)  
 {  
     actors.erase(std::remove(actors.begin(), actors.end(), actor), actors.end());  
-}  
-
-void Scene::KeyDown(unsigned char key)  
-{  
-    if (!actors.empty())  
-    {  
-        Actor* actor = actors[0];  
-        PxVec3 position = actor->getPosition();  
-
-        switch (key)  
-        {  
-        case 'w':  
-            position.y += 1.0f;  
-            break;  
-        case 's':  
-            position.y -= 1.0f;  
-            break;  
-        case 'a':  
-            position.x -= 1.0f;  
-            break;  
-        case 'd':  
-            position.x += 1.0f;  
-            break;  
-        default:  
-            break;  
-        }  
-
-        actor->setPosition(position);  
-    }  
 }  
 
 void Scene::setMousePosition(PxVec2 mousePosition)  

@@ -15,7 +15,6 @@ using namespace chrono;
 namespace PhysicsEngine {
     Scene* scene = nullptr;
     InputManager* inputManager = nullptr;
-    Crane* crane = nullptr;
     Camera* camera = nullptr;
 
 	// PhysX variables
@@ -54,14 +53,9 @@ namespace PhysicsEngine {
         scene = new Level();
         scene->Init(camera, inputManager);
 
-		// Create the crane
-		crane = new Crane(PxTransform(PxVec3(-10.f, 10.f, 0.f)), 5.f, 1.f);
-        scene-> addActors(crane->getActors());
-
 		// Initialize the camera
-        camera = new Camera(crane);
+        camera = new Camera();
         scene->setCamera(camera);
-		scene->addActors(crane->getActors());
 
 		// Set the scene in the physics engine
         glutDisplayFunc(RenderScene);
@@ -70,12 +64,7 @@ namespace PhysicsEngine {
 
     void Update() {
         if (scene) {
-            scene->Update(deltaTime);
-
-            // Update the crane with input handling
-            if (crane && inputManager) {
-                crane->Update(deltaTime, inputManager, camera);
-            }
+            scene->Update(deltaTime, inputManager, camera);
         }
     }
 
@@ -134,39 +123,6 @@ namespace PhysicsEngine {
             return nullptr;
     }
 
-    PxConvexMeshGeometry CreateConvexMeshGeometry(vector<PxVec3>& verts, float x, float y, float z, PxVec3 rotation)
-    {
-        vector<PxVec3> newVerts(verts);
-
-        // Translate the verts in accordance to the rotation (euler angles)
-        for (int i = 0; i < newVerts.size(); i++)
-        {
-            PxVec3 vert = newVerts[i];
-            newVerts[i].x = vert.x * cos(rotation.y) - vert.z * sin(rotation.y);
-            newVerts[i].z = vert.x * sin(rotation.y) + vert.z * cos(rotation.y);
-        }
-
-        // Translate the newVerts to the correct position
-        for (int i = 0; i < newVerts.size(); i++)
-            newVerts[i] = newVerts[i] + PxVec3(x, y, z);
-
-        PxConvexMeshDesc convexDesc;
-        convexDesc.points.count = (PxU32)newVerts.size();
-        convexDesc.points.stride = sizeof(PxVec3);
-        convexDesc.points.data = newVerts.data();
-        convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
-
-        PxDefaultMemoryOutputStream buf;
-        PxConvexMeshCookingResult::Enum result;
-        if (!PhysicsEngine::getCooking()->cookConvexMesh(convexDesc, buf, &result))
-            return PxConvexMeshGeometry();
-
-        PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
-        PxConvexMesh* convexMesh = PhysicsEngine::getPhysics()->createConvexMesh(input);
-
-        return PxConvexMeshGeometry(convexMesh);
-    }
-
 	// From PhysX Tutorials
     PxMaterial* createMaterial(PxReal staticFriction, PxReal dynamicFriction, PxReal coefficientRestitution) {
         return physics->createMaterial(staticFriction, dynamicFriction, coefficientRestitution);
@@ -182,7 +138,7 @@ namespace PhysicsEngine {
     void RenderScene()
     {
         Uptime += deltaTime;
-        scene->Update(deltaTime);
+        scene->Update(deltaTime, inputManager, camera);
 
         auto startPhysics = chrono::high_resolution_clock::now();
         auto endPhysics = high_resolution_clock::now();
@@ -192,7 +148,6 @@ namespace PhysicsEngine {
         Renderer::Start(camera->getPosition(), camera->getDirection());
 
         vector<PxActor*> actors = scene->getPxActors();
-		printf("Actors: %d\n", (int)actors.size());
 
         if (!actors.empty())
         {
@@ -202,12 +157,8 @@ namespace PhysicsEngine {
         auto endRender = high_resolution_clock::now();
         auto renderTime = duration_cast<milliseconds>(endRender - startTime).count();
 
-        //printf("Physics: %lldms, Render: %lldms\n", physicsTime, renderTime);
-
+        printf("Physics: %lldms, Render: %lldms\n", physicsTime, renderTime);
 		Renderer::End();
-
-        // sleep to prevent 100% CPU usage
-        sleep_for(deltaTime * 1000ms);
     }
 
     void windowReshapeCallback(int width, int height)
@@ -218,7 +169,6 @@ namespace PhysicsEngine {
 
     void KeyPress(unsigned char key, int x, int y) {
         inputManager->setKeyPressed(key);
-        scene->KeyDown(key);
     }
 
     void KeyRelease(unsigned char key, int x, int y) {

@@ -13,141 +13,83 @@
 using namespace physx;
 using namespace std;
 
+
 // --- Wheel Class ---
-class Wheel : public StaticActor
+class Wheel : public DynamicActor
 {
 public:
 	Wheel(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f);
-	~Wheel(); 
+	~Wheel();
 private:
 	float size;
 };
 
-// --- Wheels Class ---
-class Wheels : public StaticActor
+// --- CraneBottom Class ---
+class CraneBottom : public DynamicActor
 {
 public:
-	Wheels(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f);
-	~Wheels();
-	std::vector<Actor*> getActors();
+	CraneBottom(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f);
+	~CraneBottom();
+	vector<Actor*> getActors();
 private:
+	float size;
 	Wheel* wheels[4];
 };
 
-// --- CraneBase Class ---
-class CraneBase : public StaticActor
-{
-public:
-	CraneBase(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f);
-	~CraneBase();
-private:
-	float size;
-};
-
-// --- CraneCore Class ---
-class CraneCore : public StaticActor
-{
-public:
-	CraneCore(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f);
-	~CraneCore();
-private:
-	float size;
-};
-
-// --- CraneLowerArm Class ---
-class CraneLowerArm : public StaticActor
-{
-public:
-	CraneLowerArm(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f, float length = 1.0f);
-	~CraneLowerArm() { delete this; } // Destructor
-private:
-	float size;
-	float length;
-};
-
-// --- CraneUpperArm Class ---
-class CraneUpperArm : public StaticActor
-{
-public:
-	CraneUpperArm(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f, float length = 1.0f);
-	~CraneUpperArm() { delete this; } // Destructor
-private:
-	float size;
-	float length;
-};
-
 // --- CraneArm Class ---
-class CraneArm : public StaticActor
+class CraneArmBottom : public DynamicActor
 {
 public:
-	CraneArm(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f, float length = 1.0f);
-    ~CraneArm() {
-        // Clean up the arm components
-        delete lowerArm;
-        delete upperArm;
-    }
-	std::vector<Actor*> getActors();
+	CraneArmBottom(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f, float length = 1.0f);
+	~CraneArmBottom();
 private:
-	CraneLowerArm* lowerArm; // The lower arm of the crane connected to the core
-	CraneUpperArm* upperArm; // The upper arm of the crane connected to the lower arm
 	float size;
-	float length; // Declare 'length' as a member of the class
+	float length;
 };
 
-// --- CraneHook Class ---
-class CraneHook : public StaticActor
+class CraneArmTop : public DynamicActor
 {
 public:
-	CraneHook(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f);
-	~CraneHook();
+	CraneArmTop(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f, float length = 1.0f);
+	~CraneArmTop();
 private:
 	float size;
+	float length;
 };
 
-// --- Chain Class ---
-class Chain : public StaticActor
+// --- CraneTop Class ---
+class CraneTop : public DynamicActor
 {
 public:
-	Chain(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f);
-	~Chain();
+	CraneTop(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f, float length = 1.0f, CraneBottom* bottom = nullptr);
+	~CraneTop();
+	vector<Actor*> getActors();
 private:
 	float size;
-};
-
-// --- WreckingBall Class ---
-class WreckingBall : public StaticActor
-{
-public:
-    WreckingBall(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f);
-	~WreckingBall();
-
-	void onColision(Actor* other);
-private:
-	float size;
+	float length;
+	CraneBottom* bottom;
+	std::vector<Actor*> actors; // Store the actors in a vector
 };
 
 // --- Crane Class ---
-class Crane : public Actor
+class Crane : public DynamicActor
 {
 public:
-    Crane(const PxTransform& pose = PxTransform(PxIdentity), float Size = 1.0f, float Length = 1.0f);
-    ~Crane();
-
-    void Update(PxReal deltaTime, InputManager* inputManager, Camera* camera);
-    std::vector<Actor*> getActors();
-
+	Crane(const PxTransform& pose = PxTransform(PxIdentity), float Size = 1.0f, float Length = 1.0f);
+	~Crane();
+	Actor* getTop();
+	void Update(float deltaTime, InputManager* inputManager);
+	vector<Actor*> getActors();
+	void Move(PxVec2 movementOffset);
+	void Rotate(Actor* target, float direction);
 private:
-    float Size, Length;
+	float Size, Length;
+	CraneBottom* bottom;
+	CraneTop* top;
+	//CraneChain* chain;
+	//CraneBall* ball;
 
-	Wheels* wheels; // The wheels of the crane connected to the base
-	CraneBase* base; // The base of the crane connected to the wheels and the core
-	CraneCore* core; // The core of the crane connected by a joint to the base, and the arm
-	CraneArm* arm; // The arm of the crane connected to the core
-	CraneHook* hook; // The hook of the crane connected to the arm
-	Chain* chain; // The chain of the crane connected to the hook and the wrecking ball
-	WreckingBall* ball; // The wrecking ball connected to the chain
-
-    float rotationSpeed = 0.005f;
+	float rotationSpeed = 0.005f;
 };
 
 #endif // Crane_h

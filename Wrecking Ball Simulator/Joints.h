@@ -39,6 +39,9 @@ public:
 	RevoluteJoint(Actor* actor0, const PxTransform& localFrame0, Actor* actor1, const PxTransform& localFrame1);
 
 	void setLimits(PxReal lower, PxReal upper);
+	void setLimit(PxJointAngularLimitPair limit) { ((PxRevoluteJoint*)joint)->setLimit(limit); }
+	void setProjectionLinearTolerance(PxReal tolerance) { ((PxRevoluteJoint*)joint)->setProjectionLinearTolerance(tolerance); }
+	void setProjectionAngularTolerance(PxReal tolerance) { ((PxRevoluteJoint*)joint)->setProjectionAngularTolerance(tolerance); }
 
 	void setDriveVelocity(PxReal value);
 	PxReal GetDriveVelocity() const { return ((PxRevoluteJoint*)joint)->getDriveVelocity(); }
@@ -50,17 +53,5 @@ class FixedJoint : public Joint
 public:
 	FixedJoint(Actor* actor0, const PxTransform& localFrame0, Actor* actor1, const PxTransform& localFrame1);
 };
-
-// Custom
-class D6Joint : public Joint
-{
-public:
-	D6Joint(Actor* actor0, const PxTransform& localFrame0, Actor* actor1, const PxTransform& localFrame1);
-
-	void setMotion(PxD6Axis::Enum axis, PxD6Motion::Enum motion);
-	void setTwistLimit(PxReal lower, PxReal upper);
-	void setSwingLimit(PxReal yLimit, PxReal zLimit);
-};
-
 
 #endif // !JOINTS_H

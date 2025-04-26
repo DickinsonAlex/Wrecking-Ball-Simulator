@@ -65,37 +65,3 @@ FixedJoint::FixedJoint(Actor* actor0, const PxTransform& localFrame0, Actor* act
 	joint = PxFixedJointCreate(*PhysicsEngine::getPhysics(), pxActors[0], localFrame0, pxActors[1], localFrame1);
 	joint->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 }
-
-D6Joint::D6Joint(Actor* actor0, const PxTransform& localFrame0, Actor* actor1, const PxTransform& localFrame1)
-	: Joint(actor0, actor1)
-{
-	PxRigidActor* pxActors[2] = { actor0->getPxActor(), actor1->getPxActor() };
-
-	joint = PxD6JointCreate(*PhysicsEngine::getPhysics(), pxActors[0], localFrame0, pxActors[1], localFrame1);
-	joint->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
-
-	// Default behavior: act like a ball-and-socket
-	((PxD6Joint*)joint)->setMotion(PxD6Axis::eTWIST, PxD6Motion::eLIMITED);
-	((PxD6Joint*)joint)->setMotion(PxD6Axis::eSWING1, PxD6Motion::eLIMITED);
-	((PxD6Joint*)joint)->setMotion(PxD6Axis::eSWING2, PxD6Motion::eLIMITED);
-
-	setTwistLimit(-PxPi / 8, PxPi / 8);
-	setSwingLimit(PxPi / 6, PxPi / 6);
-}
-
-void D6Joint::setMotion(PxD6Axis::Enum axis, PxD6Motion::Enum motion)
-{
-	((PxD6Joint*)joint)->setMotion(axis, motion);
-}
-
-void D6Joint::setTwistLimit(PxReal lower, PxReal upper)
-{
-	PxJointAngularLimitPair limit(lower, upper);
-	((PxD6Joint*)joint)->setTwistLimit(limit);
-}
-
-void D6Joint::setSwingLimit(PxReal yLimit, PxReal zLimit)
-{
-	PxJointLimitCone swingLimit(yLimit, zLimit);
-	((PxD6Joint*)joint)->setSwingLimit(swingLimit);
-}
