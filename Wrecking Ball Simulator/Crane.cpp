@@ -64,14 +64,23 @@ std::vector<Actor*> CraneBottom::getActors() {
 	return actors;
 }
 
-// --- CraneArm Implementation ---
-CraneArm::CraneArm(const PxTransform& pose, float size, float length) : DynamicActor(pose), size(size), length(length) {
-	createShape(PxBoxGeometry(size, length, size), 1.0f); // Increased density for more mass
-	setColour(Helpful::RGBtoScalar(240.f, 25.f, 36.f)); // Yellow color
+// --- CraneArmBottom Implementation ---
+CraneArmBottom::CraneArmBottom(const PxTransform& pose, float size, float length) : DynamicActor(pose), size(size), length(length) {
+	createShape(PxBoxGeometry(length, size, size+1), 100.0f); // Increased density for more mass
+	setColour(Helpful::RGBtoScalar(240.f, 255.f, 36.f)); // Yellow color
 	setPosition(pose.p);
 }
 
-CraneArm::~CraneArm() { delete this; }
+CraneArmBottom::~CraneArmBottom() { delete this; }
+
+// --- CraneArmTop Implementation ---
+CraneArmTop::CraneArmTop(const PxTransform& pose, float size, float length) : DynamicActor(pose), size(size), length(length) {
+	createShape(PxBoxGeometry(size, size, length+5), 100.0f); // Increased density for more mass
+	setColour(Helpful::RGBtoScalar(240.f, 255.f, 36.f)); // Yellow color
+	setPosition(pose.p);
+}
+
+CraneArmTop::~CraneArmTop() { delete this; }
 
 // --- CraneTop Implementation ---
 CraneTop::CraneTop(const PxTransform& pose, float size, float length, CraneBottom* bottom) : DynamicActor(pose), size(size), length(length), bottom(bottom) {
@@ -94,15 +103,30 @@ CraneTop::CraneTop(const PxTransform& pose, float size, float length, CraneBotto
 	joint->setProjectionLinearTolerance(0.1f);
 	joint->setProjectionAngularTolerance(0.1f);
 
-	// Create the crane arm
-	CraneArm* arm = new CraneArm(pose * PxTransform(PxVec3(0, size * 2.8f, size *2.8f)), size/2, length*10);
-    //Connect them with a joint
-	PxTransform armJointPose = pose * PxTransform(PxVec3(0, size * 2.8f * 2.f, size * 2.8f), PxQuat(PxPi / 2, PxVec3(0, 0, 1)));
-	new RevoluteJoint(arm, armJointPose, this, PxTransform(PxVec3(0, size * 2.8f, size * 2.8f), PxQuat(PxPi / 2, PxVec3(0, 0, 1))));
+    // Create the crane arm
+    CraneArmBottom* armBottom = new CraneArmBottom(pose * PxTransform(PxVec3(0, size * 2.8f, size * 2.8f)), size / 2, length*12);
+
+    // Connect them with a joint
+    PxTransform armJointPoseLocal = PxTransform(PxVec3(0, size * 2.8f, size * 2.8f), PxQuat(PxPi / 2, PxVec3(0, 0, 1)));
+    PxTransform armJointPoseWorld = pose * armJointPoseLocal;
+
+    // Use the correct local and world transforms for the FixedJoint
+    new FixedJoint(armBottom, PxTransform(PxVec3(0, 0, 0)), this, armJointPoseLocal);
+
+	// Create the top part of the crane arm
+	CraneArmTop* armTop = new CraneArmTop(pose * PxTransform(PxVec3(0, size * 2.8f, size * 2.8f)), size / 2, length * 12);
+
+	// Connect the arm top and bottom with a joint
+	PxTransform armTopJointPoseLocal = PxTransform(PxVec3(0, 0, size * 2.8f), PxQuat(PxPi / 2, PxVec3(0, 0, 1)));
+	PxTransform armTopJointPoseWorld = pose * armTopJointPoseLocal;
+	new FixedJoint(armTop, PxTransform(PxVec3(0, size * 2.8f, 0)), armBottom, armTopJointPoseLocal);
+	armTop->setName("Crane Arm Top");
+	armBottom->setName("Crane Arm Bottom");
 
     
     actors.push_back(this); // Add the arm to the list of actors
-	actors.push_back(arm); // Add the arm to the list of actors
+	actors.push_back(armBottom); // Add the arm to the list of actors
+	actors.push_back(armTop); // Add the arm to the list of actors
 }
 
 CraneTop::~CraneTop() {}
@@ -163,17 +187,17 @@ void Crane::Rotate(Actor* target, float direction)
 
 void Crane::Update(float deltaTime, InputManager* inputManager) {
     if (inputManager->isKeyPressed(static_cast<unsigned char>('w')))
-        Move(PxVec2(0.0f, 1.0f)); // Move forward
+        Move(PxVec2(0.0f, 0.5f)); // Move forward
     if (inputManager->isKeyPressed(static_cast<unsigned char>('s')))
-        Move(PxVec2(0.0f, -1.0f)); // Move backward
+        Move(PxVec2(0.0f, -0.5f)); // Move backward
     if (inputManager->isKeyPressed(static_cast<unsigned char>('a')))
-        Rotate(bottom, -20.0f); // Rotate left
+        Rotate(bottom, -5.0f); // Rotate left
     if (inputManager->isKeyPressed(static_cast<unsigned char>('d')))
-        Rotate(bottom, 20.0f); // Rotate right
+        Rotate(bottom, 5.0f); // Rotate right
     if (inputManager->isKeyPressed(static_cast<unsigned char>('q')))
-        Rotate(top, -10.0f); // Rotate top left
+        Rotate(top, 20.0f); // Rotate top left
     if (inputManager->isKeyPressed(static_cast<unsigned char>('e')))
-        Rotate(top, 10.0f); // Rotate top right
+        Rotate(top, -20.0f); // Rotate top right
 }
 
 vector<Actor*> Crane::getActors() {

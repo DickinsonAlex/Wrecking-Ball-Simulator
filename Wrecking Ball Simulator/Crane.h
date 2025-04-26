@@ -37,11 +37,21 @@ private:
 };
 
 // --- CraneArm Class ---
-class CraneArm : public DynamicActor
+class CraneArmBottom : public DynamicActor
 {
 public:
-	CraneArm(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f, float length = 1.0f);
-	~CraneArm();
+	CraneArmBottom(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f, float length = 1.0f);
+	~CraneArmBottom();
+private:
+	float size;
+	float length;
+};
+
+class CraneArmTop : public DynamicActor
+{
+public:
+	CraneArmTop(const PxTransform& pose = PxTransform(PxIdentity), float size = 1.0f, float length = 1.0f);
+	~CraneArmTop();
 private:
 	float size;
 	float length;

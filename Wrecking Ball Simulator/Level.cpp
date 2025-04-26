@@ -16,7 +16,7 @@ void Level::spawnFeatures()
 
 
 	//Create multiple buildings and add it to the scene
-	wall = new wallStructure(PxTransform(PxVec3(-120.f, 1.f, 80.f)), 15, 50, 3, 5); // Pose, floors, width, depth)
+	wall = new wallStructure(PxTransform(PxVec3(-120.f, 1.f, 80.f)), 10, 50, 5, 5); // Height, length, depth, block size
 	wall->setName("Wall");
 	for (Actor* actor : wall->getActors())
 	{
