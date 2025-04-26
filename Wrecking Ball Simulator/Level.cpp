@@ -30,6 +30,7 @@ void Level::spawnFeatures()
 void Level::updateFeatures(float deltaTime, InputManager* inputManager, Camera* camera)
 {
 	crane->Update(deltaTime, inputManager);
+    wall->Update(deltaTime); // Call the wallStructure's update function
 }
 
 vector<Actor*> Level::getActors()

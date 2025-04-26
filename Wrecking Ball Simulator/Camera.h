@@ -14,13 +14,9 @@ public:
 	Camera(); // Constructor
 	~Camera(); // Destructor
 
-	// Target
-	Actor* targetActor; // Pointer to the target actor
-
 	// Getters
 	PxVec3 getPosition() const;
 	PxVec3 getDirection() const;
-	Actor* getTargetActor() { return targetActor; };
 
 	// Update
 	void update(float deltaTime, Actor* target);

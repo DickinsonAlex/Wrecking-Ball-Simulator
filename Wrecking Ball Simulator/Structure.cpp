@@ -53,3 +53,26 @@ wallStructure::~wallStructure()
 std::vector<Actor*> wallStructure::getActors() {
 	return actors;
 }
+
+void wallStructure::Update(float deltaTime)
+{
+    int fallenBricks = 0;
+    int totalBricks = actors.size();
+
+    for (Actor* actor : actors)
+    {
+		PxVec3 position = actor->getPosition(); // Get the position of each brick
+        if (position.y < 5.0f) // Check if the brick has fallen below y < 5
+        {
+            fallenBricks++;
+        }
+    }
+
+    float fallenPercentage = (fallenBricks / static_cast<float>(totalBricks)) * 100.0f;
+    if (fallenPercentage >= 60.0f)
+    {
+        printf("YOU WIN!\n");
+		// Set the scene to paused state
+		PhysicsEngine::getScene()->setPaused(true);
+    }
+}

@@ -23,6 +23,7 @@ public:
 	wallStructure(const PxTransform& pose = PxTransform(PxIdentity), int height = 1, int length = 1, int depth = 1, int blockSize = 1);
 	~wallStructure();
 	vector<Actor*> getActors();
+	void Update(float deltaTime); // Add update function declaration
 private:
 	int height;
 	int length;

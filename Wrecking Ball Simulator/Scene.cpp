@@ -8,6 +8,11 @@
 
 using namespace std; 
 
+void Scene::setPaused(bool value)
+{
+	paused = value;
+}
+
 void Scene::Init(Camera* cam, InputManager* iM)
 {  
     camera = cam;
@@ -38,6 +43,9 @@ void Scene::Init(Camera* cam, InputManager* iM)
 
 void Scene::Update(float deltaTime, InputManager* inputManager, Camera* camera)
 {  
+	if (paused)
+		return;
+
     camera->update(deltaTime, getTarget());
     updateFeatures(deltaTime, inputManager, camera);
     pxScene->simulate(deltaTime);

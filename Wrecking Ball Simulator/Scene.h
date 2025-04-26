@@ -38,6 +38,7 @@ public:
 	void addActor(Actor* actor); // Add an actor to the list  
 	void addActors(vector<Actor*> actorList); // Add a list of actors to the scene
 	void removeActor(Actor* actor); // Remove an actor from the list  
+	void setPaused(bool value); // Set the paused state
 };
 
 #endif // SCENE_H
