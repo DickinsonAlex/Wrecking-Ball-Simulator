@@ -75,7 +75,7 @@ CraneArmBottom::~CraneArmBottom() { delete this; }
 
 // --- CraneArmTop Implementation ---
 CraneArmTop::CraneArmTop(const PxTransform& pose, float size, float length) : DynamicActor(pose), size(size), length(length) {
-	createShape(PxBoxGeometry(size, size, length+5), 100.0f); // Increased density for more mass
+	createShape(PxBoxGeometry(size+.1f, size, length+6), 100.0f); // Increased density for more mass
 	setColour(Helpful::RGBtoScalar(240.f, 255.f, 36.f)); // Yellow color
 	setPosition(pose.p);
 }
@@ -88,7 +88,7 @@ CraneTop::CraneTop(const PxTransform& pose, float size, float length, CraneBotto
     float height = size;
     float depth = size * 2.2f;
     PxTransform corePose = pose * PxTransform(PxVec3(0, size*2.8f, 0));
-    createShape(PxBoxGeometry(width, height, depth), 1.0f); // Increased density for more mass
+    createShape(PxBoxGeometry(width, height, depth), 10.0f); // Increased density for more mass
 	setColour(Helpful::RGBtoScalar(240.f, 255.f, 36.f)); // Yellow color
     setPosition(corePose.p);
 
@@ -96,12 +96,20 @@ CraneTop::CraneTop(const PxTransform& pose, float size, float length, CraneBotto
     PxQuat rot = PxQuat(PxPi / 2, PxVec3(0, 0, 1)); // 90 deg around Z aligns X to Y
     PxTransform jointFrame(rot);
 
-    // Now use localFrame for both actors if you want them to spin around Y
-	RevoluteJoint* joint = new RevoluteJoint(bottom, PxTransform(jointFrame.p + PxVec3(0,height,0), jointFrame.q), this, PxTransform(jointFrame.p + PxVec3(0, -height/2, 0), jointFrame.q));
-	joint->setLimit(PxJointAngularLimitPair(-PxPi / 2, PxPi / 2)); // Limit rotation to +/- 90 degrees
-	joint->setDriveVelocity(0.0f); // No drive velocity
-	joint->setProjectionLinearTolerance(0.1f);
-	joint->setProjectionAngularTolerance(0.1f);
+    // Now use localFrame for both actors to restrict rotation to Y-axis only
+    RevoluteJoint* joint = new RevoluteJoint(
+        bottom, 
+        PxTransform(jointFrame.p + PxVec3(0, height, 0), jointFrame.q), 
+        this, 
+        PxTransform(jointFrame.p + PxVec3(0, -height / 2, 0), jointFrame.q)
+    );
+
+    // Disable drive velocity to prevent unintended movement
+    joint->setDriveVelocity(0.0f); 
+
+    // Tighten tolerances to reduce wobble
+    joint->setProjectionLinearTolerance(100.f); 
+    joint->setProjectionAngularTolerance(100.f);
 
     // Create the crane arm
     CraneArmBottom* armBottom = new CraneArmBottom(pose * PxTransform(PxVec3(0, size * 2.8f, size * 2.8f)), size / 2, length*12);
