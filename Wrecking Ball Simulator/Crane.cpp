@@ -10,20 +10,20 @@ using namespace physx;
 
 // --- Wheel Implementation ---
 Wheel::Wheel(const PxTransform& pose, float size) : DynamicActor(pose), size(size) {
-    createShape(PxBoxGeometry(size/2, size/1, size/1), 1.0f);
+    createShape(PxSphereGeometry(size), 5.0f);
 	setColour(Helpful::RGBtoScalar(0.0f, 0.0f, 0.0f)); // Black color
 }
 
 Wheel::~Wheel() {}
 
-// --- CraneBase Implementation ---
+// --- CraneBottom Implementation ---
 CraneBottom::CraneBottom(const PxTransform& pose, float size) : DynamicActor(pose), size(size) {
     float width = size * 2.2f;
     float height = size / 2.5f;
     float depth = size * 2.2f;
 
     PxTransform basePose = pose * PxTransform(PxVec3(0, size / 2, 0));
-    createShape(PxBoxGeometry(width, height, depth), 10.0f);
+    createShape(PxBoxGeometry(width, height, depth), 5000000000.0f); // Increased density for more mass
     setColour(Helpful::RGBtoScalar(100.0f, 100.0f, 100.0f)); // Grey color
     setPosition(basePose.p);
 
@@ -37,10 +37,10 @@ CraneBottom::CraneBottom(const PxTransform& pose, float size) : DynamicActor(pos
 
     // Joint points
     PxTransform jointPoses[4] = {
-        PxTransform(PxVec3(width, -height, depth)),
-        PxTransform(PxVec3(-width, -height / 2, depth)),
-        PxTransform(PxVec3(width, -height / 2, -depth)),
-        PxTransform(PxVec3(-width, -height / 2, -depth))
+        PxTransform(PxVec3(width, (-height) - 3, depth - 4)),
+        PxTransform(PxVec3(-width, (-height / 2) - 3, depth - 4)),
+        PxTransform(PxVec3(width, (-height / 2) - 3, 4 - depth)),
+        PxTransform(PxVec3(-width, (-height / 2) - 3, 4 - depth))
     };
 
     // Create wheels and joints
@@ -64,13 +64,22 @@ std::vector<Actor*> CraneBottom::getActors() {
 	return actors;
 }
 
-// --- CraneCore Implementation ---
+// --- CraneArm Implementation ---
+CraneArm::CraneArm(const PxTransform& pose, float size, float length) : DynamicActor(pose), size(size), length(length) {
+	createShape(PxBoxGeometry(size, length, size), 1.0f); // Increased density for more mass
+	setColour(Helpful::RGBtoScalar(240.f, 25.f, 36.f)); // Yellow color
+	setPosition(pose.p);
+}
+
+CraneArm::~CraneArm() { delete this; }
+
+// --- CraneTop Implementation ---
 CraneTop::CraneTop(const PxTransform& pose, float size, float length, CraneBottom* bottom) : DynamicActor(pose), size(size), length(length), bottom(bottom) {
 	float width = size * 2.2f;
     float height = size;
     float depth = size * 2.2f;
     PxTransform corePose = pose * PxTransform(PxVec3(0, size*2.8f, 0));
-    createShape(PxBoxGeometry(width, height, depth), 1.0f);
+    createShape(PxBoxGeometry(width, height, depth), 1.0f); // Increased density for more mass
 	setColour(Helpful::RGBtoScalar(240.f, 255.f, 36.f)); // Yellow color
     setPosition(corePose.p);
 
@@ -86,18 +95,20 @@ CraneTop::CraneTop(const PxTransform& pose, float size, float length, CraneBotto
 	joint->setProjectionAngularTolerance(0.1f);
 
 	// Create the crane arm
-	PxTransform armPose = pose * PxTransform(PxVec3(0, size * 2.8f + length / 2, 0));
-	createShape(PxBoxGeometry(width, height, length), 1.0f);
-    setColour(Helpful::RGBtoScalar(240.f, 255.f, 36.f)); // Yellow color
-    setPosition(armPose.p);
+	CraneArm* arm = new CraneArm(pose * PxTransform(PxVec3(0, size * 2.8f, size *2.8f)), size/2, length*10);
+    //Connect them with a joint
+	PxTransform armJointPose = pose * PxTransform(PxVec3(0, size * 2.8f * 2.f, size * 2.8f), PxQuat(PxPi / 2, PxVec3(0, 0, 1)));
+	new RevoluteJoint(arm, armJointPose, this, PxTransform(PxVec3(0, size * 2.8f, size * 2.8f), PxQuat(PxPi / 2, PxVec3(0, 0, 1))));
+
+    
+    actors.push_back(this); // Add the arm to the list of actors
+	actors.push_back(arm); // Add the arm to the list of actors
 }
 
 CraneTop::~CraneTop() {}
 
 std::vector<Actor*> CraneTop::getActors() {
-	std::vector<Actor*> actors;
-	actors.push_back(this);
-	return actors;
+    return actors;
 }
 
 // --- Crane Implementation ---
@@ -117,39 +128,48 @@ Crane::~Crane() {
     delete top;
 }
 
+Actor* Crane::getTop() {
+	return top;
+}
+
 void Crane::Move(PxVec2 movementOffset) {  
-   PxQuat orientation = getOrientation(); // Get the crane's current orientation  
-   PxVec3 forward = orientation.rotate(PxVec3(0, 0, 1)); // Forward direction relative to orientation  
-   PxVec3 right = orientation.rotate(PxVec3(1, 0, 0)); // Right direction relative to orientation  
+    PxQuat orientation = bottom->getOrientation(); // Get the crane's current orientation  
+    PxVec3 forward = orientation.rotate(PxVec3(0, 0, 1)); // Forward direction relative to orientation  
+    PxVec3 right = orientation.rotate(PxVec3(1, 0, 0)); // Right direction relative to orientation  
 
-   // Calculate movement in world space based on the offset and orientation  
-   PxVec3 movement = forward * movementOffset.y + right * movementOffset.x;  
+    // Calculate movement in world space based on the offset and orientation  
+    PxVec3 movement = forward * movementOffset.y + right * movementOffset.x;  
 
-   for (Actor* actor : getActors()) {  
-       PxVec3 currentPosition = actor->getPosition();  
-       PxVec3 newPosition = currentPosition + movement;  
-       actor->setPosition(newPosition);  
-   }  
+    for (Actor* actor : getActors()) {  
+        PxVec3 currentPosition = actor->getPosition();
+        PxVec3 newPosition = currentPosition + movement;  
+        actor->setPosition(newPosition);
+    }  
+
+    // Update the position of the crane
+    PxVec3 currentPosition = getPosition();
+    PxVec3 newPosition = currentPosition + movement;
+    setPosition(newPosition);
 }
 
 void Crane::Rotate(Actor* target, float direction)  
 {  
-   // Use the correct PxQuat constructor that takes an angle in radians and a normalized axis.  
-   PxQuat rotation(direction * rotationSpeed, PxVec3(0, 1, 0));  
+    // Use the correct PxQuat constructor that takes an angle in radians and a normalized axis.  
+    PxQuat rotation(direction * rotationSpeed, PxVec3(0, 1, 0));  
     PxQuat currentRotation = target->getOrientation();
-	PxQuat newRotation = currentRotation * rotation;
+    PxQuat newRotation = currentRotation * rotation;
     target->setOrientation(newRotation);
 }
 
-void Crane::Update(float deltaTime, InputManager* inputManager, Camera* camera) {
+void Crane::Update(float deltaTime, InputManager* inputManager) {
     if (inputManager->isKeyPressed(static_cast<unsigned char>('w')))
         Move(PxVec2(0.0f, 1.0f)); // Move forward
     if (inputManager->isKeyPressed(static_cast<unsigned char>('s')))
         Move(PxVec2(0.0f, -1.0f)); // Move backward
     if (inputManager->isKeyPressed(static_cast<unsigned char>('a')))
-        Rotate(this, -20.0f); // Rotate left
+        Rotate(bottom, -20.0f); // Rotate left
     if (inputManager->isKeyPressed(static_cast<unsigned char>('d')))
-        Rotate(this, 20.0f); // Rotate right
+        Rotate(bottom, 20.0f); // Rotate right
     if (inputManager->isKeyPressed(static_cast<unsigned char>('q')))
         Rotate(top, -10.0f); // Rotate top left
     if (inputManager->isKeyPressed(static_cast<unsigned char>('e')))

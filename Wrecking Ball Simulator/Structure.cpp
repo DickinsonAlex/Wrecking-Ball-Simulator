@@ -5,7 +5,7 @@
 brick::brick(const PxTransform& pose, int size) : DynamicActor(pose), size(size)
 {
 	// Create a box shape for the brick
-	createShape(PxBoxGeometry(size / 2.f, size / 4.f, size / 4.f), 10.0f);
+	createShape(PxBoxGeometry(size / 2.f, size / 4.f, size / 4.f), 500.0f);
 	setColour(Helpful::RGBtoScalar(220.f, 0.f, 0.f)); // Red color
 	setName("Brick");
 	printf("Brick spawned at position: %f, %f, %f\n", pose.p.x, pose.p.y, pose.p.z);

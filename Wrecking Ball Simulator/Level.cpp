@@ -5,7 +5,7 @@
 void Level::spawnFeatures()
 {
 	// Create the crane
-	crane = new Crane(PxTransform(PxVec3(-10.f, 10.f, 0.f)), 5.f, 1.f);
+	crane = new Crane(PxTransform(PxVec3(0.f, 1.f, 0.f)), 5.f, 1.f);
 	addActors(crane->getActors());
 
     // Implementation for spawning features in the scene
@@ -16,7 +16,7 @@ void Level::spawnFeatures()
 
 
 	//Create multiple buildings and add it to the scene
-	wall = new wallStructure(PxTransform(PxVec3(10.f, 10.f, 80.f)), 10, 50, 1, 5); // Pose, floors, width, depth)
+	wall = new wallStructure(PxTransform(PxVec3(-120.f, 1.f, 80.f)), 15, 50, 3, 5); // Pose, floors, width, depth)
 	wall->setName("Wall");
 	for (Actor* actor : wall->getActors())
 	{
@@ -29,7 +29,7 @@ void Level::spawnFeatures()
 
 void Level::updateFeatures(float deltaTime, InputManager* inputManager, Camera* camera)
 {
-	crane->Update(deltaTime, inputManager, camera);
+	crane->Update(deltaTime, inputManager);
 }
 
 vector<Actor*> Level::getActors()

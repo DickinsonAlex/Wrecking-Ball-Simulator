@@ -34,14 +34,11 @@ void Scene::Init(Camera* cam, InputManager* iM)
     spawnFeatures();
     
     paused = false;
-}  
+}
 
 void Scene::Update(float deltaTime, InputManager* inputManager, Camera* camera)
 {  
-    if (camera)  
-    {  
-        camera->update(deltaTime);  
-    }  
+    camera->update(deltaTime, getTarget());
     updateFeatures(deltaTime, inputManager, camera);
     pxScene->simulate(deltaTime);
     pxScene->fetchResults(true);

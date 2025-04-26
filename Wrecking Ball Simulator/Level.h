@@ -18,7 +18,7 @@ protected:
 	void updateFeatures(float deltaTime, InputManager* inputManager, Camera* camera); // Update features in the scene
 public:
 	vector<Actor*> getActors(); // Get all sub-actors in the scene
-	Actor* getTarget() { return crane; } // Get the target actor (crane)
+    Actor* getTarget() override { return crane->getTop(); } // Ensure it returns a pointer to the crane
 };
 
 #endif // LEVEL_H

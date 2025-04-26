@@ -1,9 +1,8 @@
 #include "Camera.h"
 #include "Actor.h" // Include Actor class
 
-Camera::Camera(Actor* target)
+Camera::Camera()
 {
-	targetActor = target; // Initialize target actor
 	position = PxVec3(0, 0, 0); // Default camera position
 	orientation = PxVec3(0, 0, 0); // Default camera orientation
 }
@@ -22,17 +21,14 @@ PxVec3 Camera::getDirection() const
     return orientation;
 }
 
-void Camera::setTargetActor(Actor* actor)
+void Camera::update(float deltaTime, Actor* target)
 {
-    targetActor = actor;
-}
-
-void Camera::update(float deltaTime)
-{
-    if (targetActor)
+    if (target)
     {
-        // Update camera position and rotation based on the target actor
-		position = targetActor->getPosition() + PxVec3(40, 40, -40); // position offset
-		orientation = targetActor->getOrientation().getBasisVector0() + PxVec3(-95, -40, 70); // angle offset
+        // Update camera position to be behind the top of the crane, so relative to the angle its facing
+		position = target->getPosition() + PxVec3(0, 25, -50); // Adjust the offset as needed
+		// Update camera orientation to look at the target
+		orientation = target->getPosition() - position; // Look at the target
+		orientation.normalize(); // Normalize the direction vector
     }
 }

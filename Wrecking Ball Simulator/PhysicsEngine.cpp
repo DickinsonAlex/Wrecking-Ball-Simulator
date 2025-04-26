@@ -54,7 +54,7 @@ namespace PhysicsEngine {
         scene->Init(camera, inputManager);
 
 		// Initialize the camera
-        camera = new Camera(scene->getTarget());
+        camera = new Camera();
         scene->setCamera(camera);
 
 		// Set the scene in the physics engine
@@ -148,7 +148,6 @@ namespace PhysicsEngine {
         Renderer::Start(camera->getPosition(), camera->getDirection());
 
         vector<PxActor*> actors = scene->getPxActors();
-		printf("Actors: %d\n", (int)actors.size());
 
         if (!actors.empty())
         {
@@ -158,12 +157,8 @@ namespace PhysicsEngine {
         auto endRender = high_resolution_clock::now();
         auto renderTime = duration_cast<milliseconds>(endRender - startTime).count();
 
-        //printf("Physics: %lldms, Render: %lldms\n", physicsTime, renderTime);
-
+        printf("Physics: %lldms, Render: %lldms\n", physicsTime, renderTime);
 		Renderer::End();
-
-        // sleep to prevent 100% CPU usage
-        sleep_for(deltaTime * 1000ms);
     }
 
     void windowReshapeCallback(int width, int height)
