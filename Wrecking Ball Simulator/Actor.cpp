@@ -20,7 +20,7 @@ Actor::~Actor()
 		delete (UserData*)getShape(i)->userData;
 }
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 void Actor::setColour(PxVec3 colour, PxU32 shapeIndex)
 {
 	if (shapeIndex == -1)
@@ -35,7 +35,7 @@ void Actor::setId(int id)
 	this->id = id;
 }
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 const PxVec3* Actor::GetColour(PxU32 shapeIndex)
 {
 	if (shapeIndex < colours.size())
@@ -44,20 +44,20 @@ const PxVec3* Actor::GetColour(PxU32 shapeIndex)
 		return 0;
 }
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 void Actor::setName(const string& name)
 {
 	this->name = name;
 	pxActor->setName(name.c_str());
 }
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 string Actor::getName()
 {
 	return name;
 }
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 void Actor::setMaterial(PxMaterial* material, PxU32 shapeIndex)
 {
 	vector<PxShape*> shapes = getShapes(shapeIndex);
@@ -72,7 +72,7 @@ void Actor::setMaterial(PxMaterial* material, PxU32 shapeIndex)
 	}
 }
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 PxShape* Actor::getShape(PxU32 shapeIndex)
 {
 	vector<PxShape*> shapes(((PxRigidActor*)pxActor)->getNbShapes());
@@ -129,14 +129,14 @@ void Actor::setOrientation(const PxQuat& rotation)
     ((PxRigidActor*)pxActor)->setGlobalPose(transform);
 }
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 DynamicActor::DynamicActor(const PxTransform& pose) : Actor()
 {
 	pxActor = (PxRigidActor*)PhysicsEngine::getPhysics()->createRigidDynamic(pose);
 	setName("");
 }
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 DynamicActor::~DynamicActor()
 {
 	for (unsigned int i = 0; i < colours.size(); i++)
@@ -161,27 +161,27 @@ void DynamicActor::createShape(const PxGeometry& geometry, PxReal density)
        ((UserData*)getShape(i)->userData)->color = &colours[i];  
 }
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 void DynamicActor::setKinematic(bool value, PxU32 index)
 {
 	((PxRigidDynamic*)pxActor)->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, value);
 }
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 StaticActor::StaticActor(const PxTransform& pose)
 {
 	pxActor = (PxRigidActor*)PhysicsEngine::getPhysics()->createRigidStatic(pose);
 	setName("");
 }
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 StaticActor::~StaticActor()
 {
 	for (unsigned int i = 0; i < colours.size(); i++)
 		delete (UserData*)getShape(i)->userData;
 }
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 void StaticActor::createShape(const PxGeometry& geometry, PxReal density)
 {
 	PxShape* shape = ((PxRigidStatic*)pxActor)->createShape(geometry, *PhysicsEngine::getMaterial());

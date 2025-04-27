@@ -68,7 +68,7 @@ namespace PhysicsEngine {
     PxCooking* getCooking() { return cooking; }
 	Scene* getScene() { return scene; }
 
-	// From PhysX Tutorials
+	// PhyX Tutorial Code
     void PxInit() {
         if (!foundation) {
             foundation = PxCreateFoundation(PX_FOUNDATION_VERSION, defaultAllocator, defaultErrorCallback);
@@ -98,7 +98,7 @@ namespace PhysicsEngine {
         createMaterial(0.5f, 0.5f, 0.6f);
     }
 
-	// From PhysX Tutorials
+	// PhyX Tutorial Code
     void PxShutdown() {
         if (cooking)
             cooking->release();
@@ -110,7 +110,7 @@ namespace PhysicsEngine {
             foundation->release();
     }
 
-	// From PhysX Tutorials
+	// PhyX Tutorial Code
     PxMaterial* getMaterial(PxU32 index) {
         std::vector<PxMaterial*> materials(physics->getNbMaterials());
         if (index < physics->getMaterials((PxMaterial**)&materials.front(), (PxU32)materials.size()))
@@ -119,7 +119,7 @@ namespace PhysicsEngine {
             return nullptr;
     }
 
-	// From PhysX Tutorials
+	// PhyX Tutorial Code
     PxMaterial* createMaterial(PxReal staticFriction, PxReal dynamicFriction, PxReal coefficientRestitution) {
         return physics->createMaterial(staticFriction, dynamicFriction, coefficientRestitution);
     }

@@ -2,7 +2,7 @@
 #include "Actor.h"
 #include "Exception.h"
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 class Plane : public StaticActor
 {
 public:
@@ -13,7 +13,7 @@ public:
 	}
 };
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 class Sphere : public DynamicActor
 {
 public:
@@ -24,7 +24,7 @@ public:
 	}
 };
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 class Box : public DynamicActor
 {
 public:
@@ -35,7 +35,7 @@ public:
 	}
 };
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 class Capsule : public DynamicActor
 {
 public:
@@ -46,7 +46,7 @@ public:
 	}
 };
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 class ConvexMesh : public DynamicActor
 {
 public:

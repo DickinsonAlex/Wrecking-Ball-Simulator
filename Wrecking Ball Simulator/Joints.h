@@ -7,7 +7,7 @@
 
 using namespace physx;
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 class Joint
 {
 protected:
@@ -19,7 +19,7 @@ public:
 	PxJoint* GetJoint() { return joint; }
 };
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 class DistanceJoint : public Joint
 {
 public:
@@ -32,7 +32,7 @@ public:
 	PxReal GetDamping() const { return ((PxDistanceJoint*)joint)->getDamping(); }
 };
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 class RevoluteJoint : public Joint
 {
 public:
@@ -47,7 +47,7 @@ public:
 	PxReal GetDriveVelocity() const { return ((PxRevoluteJoint*)joint)->getDriveVelocity(); }
 };
 
-// From PhysX Tutorials
+// PhyX Tutorial Code
 class FixedJoint : public Joint
 {
 public:

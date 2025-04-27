@@ -213,13 +213,13 @@ namespace Renderer
 		glPopMatrix();
 	}
 
-	// From PhysX Tutorials
+	// PhyX Tutorial Code
 	void ResizeWindow(int width, int height)
 	{
 		glViewport(0, 0, width, height);
 	}
 
-	// From PhysX Tutorials
+	// PhyX Tutorial Code
 	static void idleCallback()
 	{
 		//cout << "Idle callback triggered." << endl;
@@ -227,7 +227,7 @@ namespace Renderer
 		glutPostRedisplay();
 	}
 
-	// From PhysX Tutorials
+	// PhyX Tutorial Code
 	void Init(const char* title, int width, int height)
 	{
 		cout << "Initializing Window with title: " << title << ", width: " << width << ", height: " << height << endl;
@@ -465,7 +465,7 @@ namespace Renderer
 		}
 	}
 
-	// From PhysX Tutorials
+	// PhyX Tutorial Code
 	void Start(const PxVec3& cameraEye, const PxVec3& cameraDir)
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -479,7 +479,7 @@ namespace Renderer
 		gluLookAt(cameraEye.x, cameraEye.y, cameraEye.z, cameraEye.x + cameraDir.x, cameraEye.y + cameraDir.y, cameraEye.z + cameraDir.z, 0.f, 1.f, 0.f);
 	}
 
-	// From PhysX Tutorials
+	// PhyX Tutorial Code
 	void End()
 	{
 		glutSwapBuffers();
