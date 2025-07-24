@@ -1,6 +1,6 @@
 # 🏗️ Wrecking Ball Simulator – Real-Time Demolition Physics
 
-Wrecking Ball Simulator is a physics-based simulation built in C++ using NVIDIA PhysX. The player operates a mobile crane equipped with a wrecking ball, aiming to demolish a destructible wall. The simulation showcases dynamic collision response, articulated vehicle control, and a custom win condition—all designed for high-performance real-time interaction.
+This project is a physics-based simulation of a wrecking ball built in C++ using NVIDIA PhysX. The player operates a mobile crane equipped with a wrecking ball, aiming to demolish a destructible wall. The simulation showcases dynamic collision response, articulated vehicle control, and a custom win condition—all designed for high-performance real-time interaction.
 
 ✅ Core Features
 - Player-Controlled Crane: Drive and rotate the crane base and arm to aim the wrecking ball
